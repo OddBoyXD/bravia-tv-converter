@@ -401,13 +401,8 @@ async function getFFmpeg() {
   logMessage('Initializing in-browser Sony Bravia transcode engine...');
   const { createFFmpeg } = FFmpeg;
 
-  // Intelligent fallback: Use single-threaded core-st if SharedArrayBuffer isn't isolated
-  const isIsolated = window.crossOriginIsolated === true;
-  const corePath = isIsolated 
-    ? 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
-    : 'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js';
-
-  logMessage(`Engine core: ${isIsolated ? 'High-Performance Multi-threaded' : 'Universal Compatible Single-threaded'}`);
+  const corePath = 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js';
+  logMessage('Loading verified Sony Bravia H.264 / MP3 hardware core...');
 
   ffmpegInstance = createFFmpeg({
     log: true,
@@ -571,7 +566,8 @@ async function runFFmpegTranscode(inputUint8Array, baseTitle, mode, quality, onP
   const ffmpeg = await getFFmpeg();
 
   const cleanTitle = sanitizeFileName(baseTitle);
-  const inputFileName = 'bravia_input_raw';
+  const inputExt = getFileExtension(baseTitle) || (mode === 'video' ? 'mp4' : 'mp3');
+  const inputFileName = `bravia_input.${inputExt}`;
   const outputFileName = mode === 'video' 
     ? `${cleanTitle}_SonyBravia_720p.mp4` 
     : `${cleanTitle}_SonyBravia.mp3`;
