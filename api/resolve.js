@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const { url, mode, quality } = req.method === 'POST' ? req.body : req.query;
+  const { url, mode, quality, cookie } = req.method === 'POST' ? req.body : req.query;
 
   if (!url) {
     return res.status(400).json({ error: 'Missing media URL' });
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     const isYouTube = /(?:youtube\.com|youtu\.be)/i.test(url);
 
     if (isYouTube) {
-      return await resolveYouTubeStream(url, mode || 'video', quality || '720', res);
+      return await resolveYouTubeStream(url, mode || 'video', quality || '720', cookie, res);
     } else {
       // 2. Direct Media URL (MKV, MP4, MOV, WEBM, MP3, etc.)
       return await resolveDirectMedia(url, mode || 'video', quality || '720', res);
@@ -39,7 +39,7 @@ const COBALT_INSTANCES = [
   'https://cobalt.directory'
 ];
 
-async function resolveYouTubeStream(url, mode, quality, res) {
+async function resolveYouTubeStream(url, mode, quality, cookie, res) {
   // Extract video ID for metadata
   let videoId = null;
   const match = url.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([a-zA-Z0-9_-]{11})/);

@@ -46,14 +46,35 @@
   <!-- ================= TAB 1: SINGLE URL CONVERTER ================= -->
   <section class="tab-content active" id="tabSingle">
     <div class="card">
-      <label class="input-label" for="mediaUrl">Paste YouTube Link or Video URL:</label>
+      
+      <!-- Input Mode: URL or Local Device File -->
+      <label class="input-label" for="mediaUrl">1. Paste Direct Video / Audio URL or YouTube Link:</label>
       <div class="input-group">
-        <input type="text" id="mediaUrl" placeholder="https://youtube.com/watch?v=... or direct .mkv/.mp4" oninput="onUrlChanged()" />
-        <button class="paste-btn" onclick="pasteFromClipboard()" title="Paste">📋</button>
+        <input type="text" id="mediaUrl" placeholder="Paste direct .mp4/.mkv/.mp3 URL or YouTube link" oninput="onUrlChanged()" />
+        <button class="paste-btn" onclick="pasteFromClipboard()" title="Paste from Clipboard">📋</button>
+      </div>
+
+      <!-- Divider / Or pick local file -->
+      <div class="or-separator">
+        <span>— OR PICK FROM PHONE STORAGE (ZERO DATA) —</span>
+      </div>
+
+      <!-- Local File Picker -->
+      <div class="file-picker-wrap">
+        <input type="file" id="localFileInput" accept="video/*,audio/*,.mkv,.avi,.webm,.mov,.flv,.mp4,.ts,.m4v,.mp3,.m4a,.wav,.ogg,.aac" style="display:none;" onchange="onLocalFileSelected(event)" />
+        <button type="button" class="file-picker-btn" onclick="document.getElementById('localFileInput').click()">
+          📁 Select File from Phone Storage
+        </button>
+        <div id="localFileInfo" class="local-file-info" style="display: none;">
+          <span class="file-badge">📄 Local File</span>
+          <span id="localFileName" class="local-file-name">filename.mkv</span>
+          <span id="localFileSize" class="local-file-size">0 MB</span>
+          <button type="button" class="remove-file-btn" onclick="clearSelectedFile()" title="Remove File">✖</button>
+        </div>
       </div>
 
       <!-- Mode Selector: Video vs Audio -->
-      <div class="selector-label">Conversion Mode:</div>
+      <div class="selector-label">2. Conversion Mode for Sony Bravia:</div>
       <div class="mode-toggles">
         <button class="mode-btn active" id="modeVideoBtn" onclick="setMode('video')">
           🎬 Video (720p MP4)
@@ -81,15 +102,49 @@
       <div class="preview-card" id="previewCard" style="display: none;">
         <img class="preview-thumb" id="prevThumb" src="" alt="Thumbnail" />
         <div class="preview-details">
-          <div class="preview-title" id="prevTitle">Loading...</div>
+          <div class="preview-title" id="prevTitle">Loading media...</div>
           <div class="preview-meta" id="prevMeta">Sony Bravia Verified Format</div>
         </div>
       </div>
 
-      <!-- Convert Action Button -->
-      <button class="action-btn" id="convertBtn" onclick="processSingleDownload()">
-        ⚡ Convert & Download for TV
-      </button>
+      <!-- Action Buttons Row -->
+      <div class="actions-row">
+        <button class="action-btn primary-action" id="convertBtn" onclick="processSingleDownload()">
+          ⚡ Convert & Download for Sony TV
+        </button>
+        <button class="action-btn secondary-action" id="directRawBtn" onclick="downloadDirectRaw()" style="display: none;">
+          💾 Direct Raw Download
+        </button>
+      </div>
+
+      <!-- YouTube Fast Mirrors (Shows if YouTube link pasted) -->
+      <div class="yt-mirrors-box" id="ytMirrorsBox" style="display: none;">
+        <span class="mirrors-label">⚡ Fast Direct YouTube Mirrors:</span>
+        <div class="mirrors-buttons">
+          <button class="mirror-btn" onclick="openMirror('cobalt')">🌐 Cobalt Web</button>
+          <button class="mirror-btn" onclick="openMirror('y2m')">🌐 Y2Mate</button>
+          <button class="mirror-btn" onclick="openMirror('savefrom')">🌐 SaveFrom</button>
+        </div>
+      </div>
+
+      <!-- Cookie Expander Accordion -->
+      <div class="cookie-accordion">
+        <button type="button" class="accordion-toggle" onclick="toggleCookieBox()">
+          <span>🍪 YouTube Cookies (Bypass Bot Verification)</span>
+          <span id="cookieToggleArrow">▼</span>
+        </button>
+        <div class="accordion-body" id="cookieAccordionBody" style="display: none;">
+          <p class="cookie-hint">
+            Exported cookies from <strong>YT Cookie Exporter</strong> bypass YouTube's <em>"Sign in to confirm you're not a bot"</em> block. Cookies stay 100% private in your device's browser.
+          </p>
+          <textarea id="cookieInput" placeholder="Paste Netscape cookies.txt content here..." rows="4"></textarea>
+          <div class="cookie-actions">
+            <button class="cookie-btn" onclick="pasteCookieFromClipboard()">📋 Paste from Clipboard</button>
+            <button class="cookie-btn success" onclick="saveCookie()">💾 Save Cookie</button>
+            <button class="cookie-btn danger" onclick="clearCookie()">🗑️ Clear</button>
+          </div>
+        </div>
+      </div>
 
       <!-- Progress & Log Section -->
       <div class="progress-wrap" id="progressWrap" style="display: none;">
@@ -99,7 +154,7 @@
         <div class="progress-status" id="progressStatus">Initializing...</div>
       </div>
 
-      <div class="console-box" id="consoleBox">Ready. Paste any link to begin.</div>
+      <div class="console-box" id="consoleBox">Ready. Paste any direct video/audio link or select a file to begin.</div>
     </div>
   </section>
 
@@ -141,7 +196,7 @@
 
       <!-- Playlist Video Items Container -->
       <div class="playlist-items-list" id="playlistItemsList">
-        <div class="empty-state">No playlist loaded. Paste a link above.</div>
+        <div class="empty-state">No playlist loaded. Paste a playlist link above.</div>
       </div>
     </div>
   </section>

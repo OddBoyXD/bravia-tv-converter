@@ -1,6 +1,6 @@
 # 📺 Sony Bravia 720p & MP3 Converter
 
-A 100% free, 24/7 web application designed to convert, downscale, and download any video, audio stream, YouTube link, or YouTube playlist specifically formatted for the **Sony Bravia KLV-24P413D** (Non-Smart LED TV) and older USB media players.
+A 100% free, 24/7 web application designed to convert, downscale, and download any direct video URL, audio stream, local phone storage file, YouTube link, or playlist specifically formatted for the **Sony Bravia KLV-24P413D** (Non-Smart LED TV) and older USB media players.
 
 ---
 
@@ -15,28 +15,27 @@ A 100% free, 24/7 web application designed to convert, downscale, and download a
 ---
 
 ## ✨ Features
-1. **Single Video & Audio Converter**:
-   - Accepts YouTube links, Shorts, or direct video streams (MKV, MOV, FLV, WEBM, MP4, etc.).
-   - Video Qualities: **720p HD (Sony TV Max)**, **480p Standard**, **360p Compact**.
-   - Audio Qualities: **320 kbps (Ultra HQ MP3)**, **192 kbps (Standard MP3)**, **128 kbps (Fast MP3)**.
-2. **Live Dynamic File Size Estimator**:
-   - Calculates estimated file size before downloading.
-3. **Dedicated YouTube Playlist Tab**:
-   - Paste any YouTube playlist URL.
-   - View titles, thumbnails, and durations.
-   - **Download 1-by-1**: Dedicated 720p and MP3 buttons for each individual video.
-   - **Download All (Queue)**: Automatically batches and downloads the entire playlist.
-4. **Hybrid Transcoding**:
-   - Instant high-speed direct downloads for supported streams.
-   - In-browser **FFmpeg.wasm** engine for direct MKV/WEBM transcoding with zero server costs.
-5. **Mobile-First Responsive Interface**:
-   - Fast, tactile dark-mode interface optimized for mobile and desktop.
+1. **Direct Video & Audio URL Conversion**:
+   - Accepts direct links to `.mp4`, `.mkv`, `.webm`, `.avi`, `.mov`, `.flv`, `.ts`, `.mp3`, `.m4a`, `.wav`, etc.
+   - Client-side streaming download with live percentage indicator and multi-mirror CORS bypass.
+   - Converts directly in-browser using FFmpeg.wasm with exact Sony Bravia KLV-24P413D hardware constraints.
+2. **📁 Local Phone Storage File Conversion (Zero Data Consumption)**:
+   - Select any video or audio file directly from your phone's storage.
+   - Transcodes locally on device via WebAssembly at high speed with 0 KB mobile data usage!
+3. **YouTube Links & Companion Cookie Support**:
+   - Resolves YouTube videos and Shorts into compliant formats.
+   - Bypasses YouTube's *"Sign in to confirm you're not a bot"* using Netscape cookies exported with the companion **YT Cookie Exporter** app (`OddBoyXD/yt-cookie-exporter`).
+   - Integrated 1-tap Fast Mirrors: Cobalt Web, Y2Mate, and SaveFrom.
+4. **Live Dynamic File Size Estimator**:
+   - Calculates estimated file size dynamically before downloading based on video duration and profile bitrate.
+5. **Dedicated YouTube Playlist Tab**:
+   - Paste any YouTube playlist URL to load all videos with titles, thumbnails, and durations.
+   - Convert individually (720p MP4 / MP3) or batch download the whole playlist sequentially.
+6. **Universal Browser Compatibility**:
+   - Automatically uses multi-threaded WebAssembly if `crossOriginIsolated` is supported, or falls back to single-threaded WebAssembly (`core-st`) so it runs flawlessly on any mobile browser without crashing.
 
 ---
 
-## 🚀 100% Free 24/7 Deployment (Vercel)
-
-1. Fork or import this repository into your GitHub account.
-2. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
-3. Select this repository (`bravia-tv-converter`) and click **"Deploy"**.
-4. In under 30 seconds, your site will be live 24/7 at `https://your-project.vercel.app`!
+## 🚀 Live Access
+* **GitHub Pages (Static Host)**: [https://oddboyxd.github.io/bravia-tv-converter/](https://oddboyxd.github.io/bravia-tv-converter/)
+* **Vercel (Full Serverless Support)**: Deploy with 1 click on [Vercel](https://vercel.com) by importing `OddBoyXD/bravia-tv-converter`.
