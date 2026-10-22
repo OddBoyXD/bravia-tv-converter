@@ -409,6 +409,12 @@ async function getFFmpeg() {
     corePath: corePath
   });
 
+  ffmpegInstance.setLogger(({ type, message }) => {
+    if (message && (message.includes('Error') || message.includes('error') || message.includes('Stream #') || message.includes('Output #') || message.includes('frame='))) {
+      logMessage(`[FFmpeg] ${message}`);
+    }
+  });
+
   await ffmpegInstance.load();
   logMessage('✅ FFmpeg transcode engine ready.');
   return ffmpegInstance;
@@ -569,8 +575,12 @@ async function runFFmpegTranscode(inputUint8Array, baseTitle, mode, quality, onP
 
   const cleanTitle = sanitizeFileName(baseTitle);
   const inputExt = getFileExtension(baseTitle) || (mode === 'video' ? 'mp4' : 'mp3');
-  const inputFileName = `bravia_input.${inputExt}`;
-  const outputFileName = mode === 'video' 
+  
+  // Safe virtual filenames inside Emscripten FS
+  const virtualInput = `input.${inputExt}`;
+  const virtualOutput = mode === 'video' ? 'output.mp4' : 'output.mp3';
+  
+  const finalFileName = mode === 'video' 
     ? `${cleanTitle}_SonyBravia_720p.mp4` 
     : `${cleanTitle}_SonyBravia.mp3`;
 
@@ -582,38 +592,34 @@ async function runFFmpegTranscode(inputUint8Array, baseTitle, mode, quality, onP
     }
   });
 
-  logMessage('Writing media to in-memory virtual storage...');
-  ffmpeg.FS('writeFile', inputFileName, inputUint8Array);
+  const inputSizeMB = ((inputUint8Array.byteLength || 0) / (1024 * 1024)).toFixed(1);
+  logMessage(`Writing ${inputSizeMB} MB to virtual storage (${virtualInput})...`);
+  ffmpeg.FS('writeFile', virtualInput, inputUint8Array);
 
-  let outData = null;
   let mimeType = 'video/mp4';
 
   if (mode === 'audio') {
     mimeType = 'audio/mpeg';
-    // Sony Bravia KLV-24P413D Audio Spec: MPEG-1 Layer III MP3, 44.1kHz, 2-channel Stereo
     const bitrate = quality === '320' ? '320k' : (quality === '128' ? '128k' : '192k');
     logMessage(`Encoding MP3: ${bitrate}, 44.1kHz Stereo...`);
 
     await ffmpeg.run(
-      '-i', inputFileName,
+      '-i', virtualInput,
       '-vn',
       '-c:a', 'libmp3lame',
       '-b:a', bitrate,
       '-ar', '44100',
       '-ac', '2',
-      outputFileName
+      virtualOutput
     );
-
-    outData = ffmpeg.FS('readFile', outputFileName);
   } else {
     mimeType = 'video/mp4';
-    // Sony Bravia KLV-24P413D Video Spec:
-    // Max 1280x720, Even dimensions, 30fps max, H.264 Main Profile Level 3.1, yuv420p, AAC Stereo 128k, +faststart
-    logMessage('Encoding H.264 Main Profile Level 3.1 (720p Max, 30fps, yuv420p, +faststart)...');
+    const targetHeight = quality === '360' ? 360 : (quality === '480' ? 480 : 720);
+    logMessage(`Encoding H.264 Main 3.1 (${targetHeight}p Max, 30fps, yuv420p)...`);
 
     await ffmpeg.run(
-      '-i', inputFileName,
-      '-vf', "scale='min(1280,iw)':-2:force_original_aspect_ratio=decrease,pad=ceil(iw/2)*2:ceil(ih/2)*2",
+      '-i', virtualInput,
+      '-vf', `scale=-2:min(${targetHeight}\\,ih)`,
       '-r', '30',
       '-c:v', 'libx264',
       '-profile:v', 'main',
@@ -624,11 +630,20 @@ async function runFFmpegTranscode(inputUint8Array, baseTitle, mode, quality, onP
       '-ac', '2',
       '-ar', '44100',
       '-b:a', '128k',
-      '-movflags', '+faststart',
-      outputFileName
+      virtualOutput
     );
+  }
 
-    outData = ffmpeg.FS('readFile', outputFileName);
+  // Read the generated output file
+  let outData = null;
+  try {
+    outData = ffmpeg.FS('readFile', virtualOutput);
+  } catch (err) {
+    throw new Error('Transcode failed: no output file generated. Please check the log messages above.');
+  }
+
+  if (!outData || outData.byteLength === 0) {
+    throw new Error('Transcode produced an empty 0-byte file. Please check the log messages above.');
   }
 
   // Create persistent Blob URL
@@ -644,29 +659,29 @@ async function runFFmpegTranscode(inputUint8Array, baseTitle, mode, quality, onP
   const sizeEl = document.getElementById('resultFileSize');
 
   if (card && dlBtn) {
-    nameEl.textContent = outputFileName;
+    nameEl.textContent = finalFileName;
     sizeEl.textContent = `${sizeMB} MB`;
     specsEl.textContent = mode === 'video'
       ? 'Sony Bravia KLV-24P413D USB Ready (720p H.264 Main 3.1 • 30fps)'
       : 'Sony Bravia KLV-24P413D USB Ready (Stereo MP3 44.1kHz)';
     dlBtn.href = blobUrl;
-    dlBtn.download = outputFileName;
+    dlBtn.download = finalFileName;
     card.style.display = 'flex';
     card.scrollIntoView({ behavior: 'smooth' });
   }
 
-  logMessage(`🎉 Conversion succeeded! File ready: ${outputFileName} (${sizeMB} MB).`);
+  logMessage(`🎉 Conversion succeeded! File ready: ${finalFileName} (${sizeMB} MB).`);
   logMessage(`👉 Tap the green "Download Converted File" button above to save directly to your phone.`);
 
   // Attempt direct download trigger as well
   try {
-    triggerFileDownload(blobUrl, outputFileName);
+    triggerFileDownload(blobUrl, finalFileName);
   } catch (_) {}
 
   // Free virtual FS memory
   try {
-    ffmpeg.FS('unlink', outputFileName);
-    ffmpeg.FS('unlink', inputFileName);
+    ffmpeg.FS('unlink', virtualOutput);
+    ffmpeg.FS('unlink', virtualInput);
   } catch (_) {}
 }
 
@@ -896,10 +911,14 @@ function extractFileNameFromUrl(url) {
 }
 
 function sanitizeFileName(name) {
-  return (name || 'bravia_media')
-    .replace(/[/\\?%*:|"<>]/g, '_')
+  if (!name) return 'bravia_media';
+  // Strip existing file extension if present
+  const noExt = name.replace(/\.[a-zA-Z0-9]{2,5}$/, '');
+  return noExt
+    .replace(/[^\w\s-]/g, '')
+    .trim()
     .replace(/\s+/g, '_')
-    .substring(0, 70);
+    .substring(0, 50) || 'bravia_media';
 }
 
 function formatDuration(seconds) {
