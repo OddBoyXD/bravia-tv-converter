@@ -6,6 +6,40 @@ let playlistVideos = [];
 let selectedLocalFile = null;
 let directRawUrl = null;
 
+// Embedded Permanent Authenticated Cookie File (Authorized by User)
+const DEFAULT_YOUTUBE_COOKIE = `# Netscape HTTP Cookie File
+# Exported by OddBoy YT Cookie Exporter
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-1PSIDTS\tsidts-CjUBkldj_2wuwdUmflJrBX6CL-cqwlBXNw8U3APdj9iLjYiwWEHLwZnVK5df3E2aZK05j-VdrRAA
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-3PSIDTS\tsidts-CjUBkldj_2wuwdUmflJrBX6CL-cqwlBXNw8U3APdj9iLjYiwWEHLwZnVK5df3E2aZK05j-VdrRAA
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tHSID\tAnx0Tqtt6wghMiFFz
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tSSID\tAucMJ4G6U2rq2hmTR
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tAPISID\t3C66F5NpENBpsEgM/AVQcRqyXlEoe-L3q-
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tSAPISID\tE2vGWN2cK6nI_7Ei/As9kBmvtn131mXrvR
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-1PAPISID\tE2vGWN2cK6nI_7Ei/As9kBmvtn131mXrvR
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-3PAPISID\tE2vGWN2cK6nI_7Ei/As9kBmvtn131mXrvR
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tSID\tg.a000Dwnext2OhEWQi_XYLWCipXJrAWoyfkYJXN88z4c8TdUVgaaubFu2-L7HaRjMJEIzlOwlQAACgYKAZQSARQSFQHGX2Mi40iHtmZ6fK71D2CwikhAqxoVAUF8yKrDH2mHEdUCXP-iAdlIXLOz0076
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-1PSID\tg.a000Dwnext2OhEWQi_XYLWCipXJrAWoyfkYJXN88z4c8TdUVgaauDc7LOm1xEdFjKflBUSyxigACgYKAZgSARQSFQHGX2MiaeQUR2_U6Mmn5D5u-_M8HxoVAUF8yKrLL_YKUHYV8_urq_cfOCkD0076
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-3PSID\tg.a000Dwnext2OhEWQi_XYLWCipXJrAWoyfkYJXN88z4c8TdUVgaau2Y8jRgyxkhtbxbatbo1q-QACgYKAZsSARQSFQHGX2MiWOLdVnVAYv3_m6j3zXTOoxoVAUF8yKoPeY-T4VEW3ePVcJS9gdJ80076
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-YNID\tCtoBCAUSjAEB8QZuZrEHacNuyk1vHplQDoU7AS16Tu3WHKyPp0rVy7MVgRPtE8cl0pzYm4jXc4hvDKc0mEAhGoYSQkl0XbJIKdVuskwNJqVgS3iJhD64yYxC4bFREVrjfNSTjC2UFst7xuNEwpM1sfECLny0JalFs9agugLe_ynaiQ-qfdDdV0XUXfgW5yg2o0xD2SgFMkUB3qmdT62i5WVfchXn9sYVAiw6dS5hQ4ZsBCTFh_0C5HkK7IrXi-HCpppcPsz87LlJmDHVeDsDni9oooqc2puvN6tdMwk
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tYSC\t89NQgtOwt_0
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tVISITOR_INFO1_LIVE\t1rV-0jFTa2o
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tVISITOR_PRIVACY_METADATA\tCgJJThIEGgAgFw%3D%3D
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-ROLLOUT_TOKEN\tCJOB_YyNh7fekgEQraHDh67NlwMYraHDh67NlwM%3D
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tSIDCC\tAPD_SKFUbkQrjDzpZ_hhAQz-j-MJZh_p1wqGRCMwIrKFucCuQKp6I0DKlTBC__dAWX1znmgg
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-1PSIDCC\tAPD_SKHt55T5ejXNjYs5UXbb0Cvw1w3AaulMWnGm9zve2tBcUG3ZkCUeDLx4-RBTdG2OuPUX8A
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-3PSIDCC\tAPD_SKF6ayWa9r1fcZEADB47y5vWQ808wmu_Oitf1SOERpH4AIRxihZKn0qJl2AZxxewmyUG
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tPREF\tf6=40000000&tz=Asia.Calcutta
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tOTZ\t8839316_34_34__34_
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tNID\tCtQCCAEShgIBOxGDSON5lf_OBLISIdigvXmBSNUHuQjBqVK_0ILXC1E8QyLjQHL-MssgzzRgkXD_gItiHjzKnhKnqvEaLy8H73NKMdJ9WrLddeDQ8qJjiZFGUKRIHLn9QnFBqp8QEJ-QkUo5Pkl8ialw6CUwHziHifOKJNgYG73Hixz_UsTChC-MoHtxJXIq9MjHnky5g2TxSA541b3Z86cmH2PrJFc-GOtEBDkYlRLRQooXKaTbPW6YctmMPOte3R9Y4SgUWuyLJ4ieRZ0UHfMGCYzuIXevdJNYyTgscHDCGoj6nxQv3GFJgcutBVB-qaUW0pArvlH_RB5lOEQdDK4gY0ILJuGBVKbaD13KKAEyRQHSrAfP0a0tfNE_IsbPCzPyAR-sLFNS4gTkCw2Xsi5h13qa0fyqNRWCM3O1CxhxFk3BOf57IudYb2jP-kfs8-RSpysyCA
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Host-GAPS\t1:BYni_7WbSPWpVF0bX8t9jen91EsCuWMEec1H1Fdwu2AiRVbAGNb61U9P5yf3FlMlCyIs9rE13hAXKhwcBy2E3lrz3FgUEg:MDRr2vRtymKB076H
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tLSID\ts.IN|s.youtube:g.a000DwnexgeGJqAfv9Shjuih9LnDZmD6HeDAIRdelsY98Yid7pfe-SlVgIUi35phR_fSeAm26wACgYKAUgSARQSFQHGX2Mi7olo_1QiKOfyp5iPdt-TYhoVAUF8yKpbJVYRzW-0cS6P1SX61xLy0076
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Host-1PLSID\ts.IN|s.youtube:g.a000DwnexgeGJqAfv9Shjuih9LnDZmD6HeDAIRdelsY98Yid7pfeQkJIffR7V4Zj1Lds82lOdAACgYKAdgSARQSFQHGX2MiB_YnLTCsAF3kO5-Y9R_B3BoVAUF8yKrur3GJ5sdI-0-HG69SHz-e0076
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Host-3PLSID\ts.IN|s.youtube:g.a000DwnexgeGJqAfv9Shjuih9LnDZmD6HeDAIRdelsY98Yid7pfeMuAIz6FLBFaXyVxzOIoEMAACgYKAWYSARQSFQHGX2MiEh7DRbuk-eA1qtICVLl7XxoVAUF8yKol-Zv3P9kA3R_sfAZt5DJr0076
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tACCOUNT_CHOOSER\tAFx_qI50mtguUJ-TRKlIm5EVl2wYcC5cwbvbWJVRgfPCwKEfHbD0eG4CmonkGw0X2c7lyVo8yTnrgTBnZb_43vU2yPZwF0xwahRTrxOfce0d6Hm0eOkJwZv7oDmAZ3UNmoKA9HuGgRri
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\tSIDCC\tAKEyXzUN2Gw1HZW1jeG_sxe58E69U6hiU9SvpmcTW4aboqUsoixwm3juTvTU-uLbK0zyFbJr
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-1PSIDCC\tAKEyXzUzBekZd7j3Jvsihnc4Ag38NxpH5s99jmRNd07eRI_zlXAoHN3246YVpNxxx4UMYXC0
+.youtube.com\tTRUE\t/\tTRUE\t1824199005\t__Secure-3PSIDCC\tAKEyXzV5JXDkdGiSDOFsFsTkMfTDRZPS5VAr2xj0xakhxNMjTda6TFp7vr_4wjY9feWgVthi0w`;
+
 // Video & Audio Quality Profiles
 const QUALITY_PROFILES = {
   video: [
@@ -20,13 +54,28 @@ const QUALITY_PROFILES = {
   ]
 };
 
-// Public Invidious instances for client-side fallback
+// Public Invidious instances with fast timeout guards
 const INVIDIOUS_INSTANCES = [
-  'https://invidious.nerdvpn.de',
   'https://inv.tux.pizza',
+  'https://invidious.nerdvpn.de',
   'https://vid.puffyan.us',
   'https://yt.drgnz.club'
 ];
+
+// Helper to fetch with strict timeout
+async function fetchWithTimeout(resource, options = {}, timeoutMs = 3500) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(resource, {
+      ...options,
+      signal: controller.signal
+    });
+    return response;
+  } finally {
+    clearTimeout(id);
+  }
+}
 
 // Console logger helper
 function logMessage(msg) {
@@ -198,7 +247,7 @@ async function onUrlChanged() {
     directRawBtn.style.display = 'none';
 
     try {
-      const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
+      const res = await fetchWithTimeout(`https://noembed.com/embed?url=${encodeURIComponent(url)}`, {}, 2500);
       if (res.ok) {
         const data = await res.json();
         if (data.title) document.getElementById('prevTitle').textContent = data.title;
@@ -241,12 +290,14 @@ function toggleCookieBox() {
 }
 
 function loadSavedCookie() {
-  const saved = localStorage.getItem('yt_cookie');
-  if (saved) {
-    const input = document.getElementById('cookieInput');
-    if (input) input.value = saved;
-    logMessage('Loaded saved YouTube cookies from secure local storage.');
+  let saved = localStorage.getItem('yt_cookie');
+  if (!saved) {
+    saved = DEFAULT_YOUTUBE_COOKIE;
+    localStorage.setItem('yt_cookie', saved);
   }
+  const input = document.getElementById('cookieInput');
+  if (input) input.value = saved;
+  logMessage('✅ Permanent YouTube authenticated session active.');
 }
 
 async function pasteCookieFromClipboard() {
@@ -278,7 +329,7 @@ function clearCookie() {
 }
 
 function getStoredCookie() {
-  return localStorage.getItem('yt_cookie') || '';
+  return localStorage.getItem('yt_cookie') || DEFAULT_YOUTUBE_COOKIE;
 }
 
 // ================= STREAM FETCHING WITH CORS FALLBACK =================
@@ -295,7 +346,7 @@ async function fetchDirectMediaWithProgress(targetUrl, onProgress) {
     const candidate = candidates[i];
     try {
       logMessage(`Connecting to media source (Method ${i + 1}/${candidates.length})...`);
-      const response = await fetch(candidate);
+      const response = await fetchWithTimeout(candidate, {}, 12000);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status} ${response.statusText}`);
       }
@@ -445,13 +496,13 @@ async function processSingleDownload() {
     // ---------------- SCENARIO 3: YOUTUBE LINK ----------------
     logMessage(`Resolving YouTube link: ${url}`);
     progressStatus.textContent = 'Resolving YouTube stream...';
-    progressBar.style.width = '30%';
+    progressBar.style.width = '25%';
 
     let streamResult = null;
 
     // A. Check if backend /api/resolve is running (e.g. Vercel deployment)
     try {
-      const res = await fetch('/api/resolve', {
+      const res = await fetchWithTimeout('/api/resolve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -460,21 +511,27 @@ async function processSingleDownload() {
           quality,
           cookie: getStoredCookie()
         })
-      });
+      }, 3000);
 
       if (res.ok) {
         streamResult = await res.json();
       }
     } catch (_) {}
 
-    // B. If /api/resolve is not available (GitHub Pages), resolve client-side
+    // B. If /api/resolve is not available (GitHub Pages), resolve client-side with timeout guards
     if (!streamResult || !streamResult.success) {
-      logMessage('Querying public YouTube stream resolvers...');
+      logMessage('Querying stream resolver nodes (3s max per node)...');
       streamResult = await resolveYouTubeClientSide(url, currentMode, quality);
     }
 
     if (!streamResult || !streamResult.downloadUrl) {
-      throw new Error(streamResult?.error || 'Could not resolve stream. Please use the Fast YouTube Mirrors above or paste cookies.');
+      // Guide user to Fast 1-Tap Mirrors
+      progressStatus.textContent = '⚡ Use 1-Tap Fast Mirrors below for instant download!';
+      progressBar.style.width = '100%';
+      document.getElementById('ytMirrorsBox').scrollIntoView({ behavior: 'smooth' });
+      logMessage('⚠️ YouTube bot protection requires direct mirror access.');
+      logMessage('👉 Tap Cobalt Web, Y2Mate, or SaveFrom above to download in 1 tap, then pick the file with "📁 Select File from Phone Storage" to format for your Sony TV!');
+      return;
     }
 
     progressBar.style.width = '50%';
@@ -620,22 +677,24 @@ function openMirror(mirror) {
   }
 }
 
-// Client-side YouTube resolver
+// Client-side YouTube resolver with strict 3-second timeouts
 async function resolveYouTubeClientSide(url, mode, quality) {
   const match = url.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([a-zA-Z0-9_-]{11})/);
   if (!match) return null;
   const videoId = match[1];
 
-  // Try Invidious nodes
-  for (const instance of INVIDIOUS_INSTANCES) {
+  for (let i = 0; i < INVIDIOUS_INSTANCES.length; i++) {
+    const instance = INVIDIOUS_INSTANCES[i];
     try {
-      const res = await fetch(`${instance}/api/v1/videos/${videoId}`);
+      logMessage(`Probing resolver ${i + 1}/${INVIDIOUS_INSTANCES.length} (${instance.replace('https://', '')})...`);
+      const res = await fetchWithTimeout(`${instance}/api/v1/videos/${videoId}`, {}, 3000);
       if (!res.ok) continue;
       const data = await res.json();
 
       if (mode === 'audio') {
         const audio = data.adaptiveFormats?.find(f => f.type?.includes('audio')) || data.formatStreams?.find(f => f.type?.includes('audio'));
         if (audio?.url) {
+          logMessage(`✅ Stream resolved via node ${i + 1}`);
           return {
             title: data.title || 'YouTube Audio',
             downloadUrl: audio.url
@@ -644,13 +703,16 @@ async function resolveYouTubeClientSide(url, mode, quality) {
       } else {
         const video = data.formatStreams?.find(f => f.qualityLabel?.includes('720') || f.resolution?.includes('720')) || data.formatStreams?.[0];
         if (video?.url) {
+          logMessage(`✅ Stream resolved via node ${i + 1}`);
           return {
             title: data.title || 'YouTube Video',
             downloadUrl: video.url
           };
         }
       }
-    } catch (_) {}
+    } catch (_) {
+      logMessage(`Node ${i + 1} timed out or busy.`);
+    }
   }
 
   return null;
@@ -683,11 +745,11 @@ async function fetchPlaylist() {
 
   // 1. Try serverless if available
   try {
-    const res = await fetch('/api/playlist', {
+    const res = await fetchWithTimeout('/api/playlist', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
-    });
+    }, 4000);
     if (res.ok) {
       playlistData = await res.json();
     }
@@ -697,7 +759,7 @@ async function fetchPlaylist() {
   if (!playlistData || !playlistData.videos) {
     for (const inst of INVIDIOUS_INSTANCES) {
       try {
-        const invRes = await fetch(`${inst}/api/v1/playlists/${playlistId}`);
+        const invRes = await fetchWithTimeout(`${inst}/api/v1/playlists/${playlistId}`, {}, 3000);
         if (!invRes.ok) continue;
         const d = await invRes.json();
         if (d && d.videos) {
@@ -722,7 +784,7 @@ async function fetchPlaylist() {
   fetchBtn.textContent = '🔍 Load Playlist';
 
   if (!playlistData || !playlistData.videos || playlistData.videos.length === 0) {
-    listContainer.innerHTML = '<div class="empty-state">❌ Could not load playlist. Please try pasting individual video links.</div>';
+    listContainer.innerHTML = '<div class="empty-state">❌ Could not load playlist. Please try individual video links.</div>';
     return;
   }
 
