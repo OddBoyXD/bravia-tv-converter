@@ -568,6 +568,81 @@ select {
   white-space: pre-wrap;
 }
 
+/* Converted Download Result Card */
+.download-result-card {
+  background: rgba(0, 230, 118, 0.1);
+  border: 2px solid var(--accent-green);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: pulseCard 2s infinite ease-in-out;
+  box-shadow: 0 0 20px rgba(0, 230, 118, 0.25);
+}
+
+@keyframes pulseCard {
+  0%, 100% { border-color: var(--accent-green); box-shadow: 0 0 15px rgba(0, 230, 118, 0.2); }
+  50% { border-color: #00b0ff; box-shadow: 0 0 25px rgba(0, 176, 255, 0.35); }
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.result-icon {
+  font-size: 1.8rem;
+}
+
+.result-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.result-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-specs {
+  font-size: 0.76rem;
+  color: var(--accent-cyan);
+  margin-top: 2px;
+}
+
+.download-ready-btn {
+  display: block;
+  background: linear-gradient(135deg, #00e676, #00b0ff);
+  color: #050811;
+  font-weight: 800;
+  font-size: 1rem;
+  text-align: center;
+  text-decoration: none;
+  padding: 14px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0, 230, 118, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.download-ready-btn:active {
+  transform: scale(0.97);
+}
+
+.pl-download-btn {
+  background: rgba(0, 230, 118, 0.2) !important;
+  border-color: var(--accent-green) !important;
+  color: var(--accent-green) !important;
+  text-decoration: none;
+  display: inline-block;
+}
+
 /* Playlist Specific */
 .playlist-header {
   display: flex;

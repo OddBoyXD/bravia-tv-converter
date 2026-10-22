@@ -429,6 +429,8 @@ async function processSingleDownload() {
   const progressStatus = document.getElementById('progressStatus');
 
   btn.disabled = true;
+  const dlCard = document.getElementById('downloadResultCard');
+  if (dlCard) dlCard.style.display = 'none';
   progressWrap.style.display = 'flex';
   progressBar.style.width = '10%';
   progressStatus.textContent = 'Preparing media for conversion...';
@@ -583,7 +585,11 @@ async function runFFmpegTranscode(inputUint8Array, baseTitle, mode, quality, onP
   logMessage('Writing media to in-memory virtual storage...');
   ffmpeg.FS('writeFile', inputFileName, inputUint8Array);
 
+  let outData = null;
+  let mimeType = 'video/mp4';
+
   if (mode === 'audio') {
+    mimeType = 'audio/mpeg';
     // Sony Bravia KLV-24P413D Audio Spec: MPEG-1 Layer III MP3, 44.1kHz, 2-channel Stereo
     const bitrate = quality === '320' ? '320k' : (quality === '128' ? '128k' : '192k');
     logMessage(`Encoding MP3: ${bitrate}, 44.1kHz Stereo...`);
@@ -598,10 +604,9 @@ async function runFFmpegTranscode(inputUint8Array, baseTitle, mode, quality, onP
       outputFileName
     );
 
-    const outData = ffmpeg.FS('readFile', outputFileName);
-    downloadBlob(outData, 'audio/mpeg', outputFileName);
-    ffmpeg.FS('unlink', outputFileName);
+    outData = ffmpeg.FS('readFile', outputFileName);
   } else {
+    mimeType = 'video/mp4';
     // Sony Bravia KLV-24P413D Video Spec:
     // Max 1280x720, Even dimensions, 30fps max, H.264 Main Profile Level 3.1, yuv420p, AAC Stereo 128k, +faststart
     logMessage('Encoding H.264 Main Profile Level 3.1 (720p Max, 30fps, yuv420p, +faststart)...');
@@ -623,13 +628,44 @@ async function runFFmpegTranscode(inputUint8Array, baseTitle, mode, quality, onP
       outputFileName
     );
 
-    const outData = ffmpeg.FS('readFile', outputFileName);
-    downloadBlob(outData, 'video/mp4', outputFileName);
-    ffmpeg.FS('unlink', outputFileName);
+    outData = ffmpeg.FS('readFile', outputFileName);
   }
 
-  // Free memory
+  // Create persistent Blob URL
+  const blob = new Blob([outData.buffer], { type: mimeType });
+  const blobUrl = URL.createObjectURL(blob);
+  const sizeMB = (outData.byteLength / (1024 * 1024)).toFixed(1);
+
+  // Present the dedicated Download Card
+  const card = document.getElementById('downloadResultCard');
+  const dlBtn = document.getElementById('downloadResultBtn');
+  const nameEl = document.getElementById('resultFileName');
+  const specsEl = document.getElementById('resultFileSpecs');
+  const sizeEl = document.getElementById('resultFileSize');
+
+  if (card && dlBtn) {
+    nameEl.textContent = outputFileName;
+    sizeEl.textContent = `${sizeMB} MB`;
+    specsEl.textContent = mode === 'video'
+      ? 'Sony Bravia KLV-24P413D USB Ready (720p H.264 Main 3.1 • 30fps)'
+      : 'Sony Bravia KLV-24P413D USB Ready (Stereo MP3 44.1kHz)';
+    dlBtn.href = blobUrl;
+    dlBtn.download = outputFileName;
+    card.style.display = 'flex';
+    card.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  logMessage(`🎉 Conversion succeeded! File ready: ${outputFileName} (${sizeMB} MB).`);
+  logMessage(`👉 Tap the green "Download Converted File" button above to save directly to your phone.`);
+
+  // Attempt direct download trigger as well
   try {
+    triggerFileDownload(blobUrl, outputFileName);
+  } catch (_) {}
+
+  // Free virtual FS memory
+  try {
+    ffmpeg.FS('unlink', outputFileName);
     ffmpeg.FS('unlink', inputFileName);
   } catch (_) {}
 }

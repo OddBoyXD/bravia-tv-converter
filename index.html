@@ -154,6 +154,20 @@
         <div class="progress-status" id="progressStatus">Initializing...</div>
       </div>
 
+      <!-- Download Ready Action Card (Shown after conversion) -->
+      <div class="download-result-card" id="downloadResultCard" style="display: none;">
+        <div class="result-header">
+          <span class="result-icon">🎉</span>
+          <div class="result-info">
+            <div class="result-title" id="resultFileName">converted_file.mp4</div>
+            <div class="result-specs" id="resultFileSpecs">Sony Bravia KLV-24P413D USB Ready</div>
+          </div>
+        </div>
+        <a id="downloadResultBtn" class="download-ready-btn" href="#" download>
+          📥 Download Converted File (<span id="resultFileSize">0 MB</span>)
+        </a>
+      </div>
+
       <div class="console-box" id="consoleBox">Ready. Paste any direct video/audio link or select a file to begin.</div>
     </div>
   </section>
