@@ -1,0 +1,467 @@
+/* style.css - Sony Bravia 720p & MP3 Converter Theme */
+:root {
+  --bg-primary: #0a0f1d;
+  --bg-secondary: #131d33;
+  --card-bg: rgba(22, 33, 56, 0.85);
+  --accent-cyan: #00d2ff;
+  --accent-blue: #0084ff;
+  --accent-green: #00e676;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-active: #0084ff;
+  --radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0a0f1d 75%);
+  color: var(--text-main);
+  min-height: 100vh;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Header */
+.app-header {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.tv-icon {
+  font-size: 2.2rem;
+}
+
+h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00d2ff, #0084ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.spec-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  margin-top: 0.6rem;
+}
+
+.pill {
+  font-size: 0.72rem;
+  background: rgba(0, 210, 255, 0.08);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+/* Navigation Tabs */
+.nav-tabs {
+  display: flex;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  padding: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #0084ff, #0056b3);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 132, 255, 0.35);
+}
+
+/* Tab Content */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Card Container */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Inputs */
+.input-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+input[type="text"] {
+  flex: 1;
+  background: #0b1325;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  color: #fff;
+  outline: none;
+  transition: border 0.2s;
+}
+
+input[type="text"]:focus {
+  border-color: var(--accent-cyan);
+}
+
+.paste-btn {
+  background: #1e293b;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0 14px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #fff;
+}
+
+/* Mode Switchers */
+.selector-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+.mode-toggles {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.mode-btn {
+  flex: 1;
+  background: #0f1a30;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-btn.active {
+  background: rgba(0, 210, 255, 0.12);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+/* Quality & Estimator */
+.quality-row, .playlist-settings-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.quality-col {
+  flex: 1;
+}
+
+select {
+  width: 100%;
+  background: #0b1325;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 11px 12px;
+  font-size: 0.88rem;
+  color: #fff;
+  outline: none;
+  cursor: pointer;
+}
+
+.size-col {
+  width: 140px;
+}
+
+.est-badge {
+  background: #0f1a30;
+  border: 1px dashed var(--accent-green);
+  color: var(--accent-green);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 11px 10px;
+  border-radius: 8px;
+}
+
+/* Preview Card */
+.preview-card {
+  display: flex;
+  gap: 0.75rem;
+  background: #0b1325;
+  border-radius: 8px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.preview-thumb {
+  width: 80px;
+  height: 55px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #1e293b;
+}
+
+.preview-details {
+  flex: 1;
+  overflow: hidden;
+}
+
+.preview-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview-meta {
+  font-size: 0.75rem;
+  color: var(--accent-cyan);
+  margin-top: 3px;
+}
+
+/* Action Buttons */
+.action-btn, .batch-download-btn, .fetch-btn {
+  background: linear-gradient(135deg, #0084ff, #00d2ff);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  padding: 13px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 132, 255, 0.4);
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.action-btn:active, .batch-download-btn:active {
+  transform: scale(0.98);
+}
+
+.action-btn:disabled, .batch-download-btn:disabled {
+  background: #334155;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.fetch-btn {
+  padding: 11px 16px;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+/* Progress & Console */
+.progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: #1e293b;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0084ff, #00e676);
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.progress-status {
+  font-size: 0.75rem;
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.console-box {
+  background: #050811;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  color: #a7f3d0;
+  height: 100px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+/* Playlist Specific */
+.playlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0f1a30;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 4px solid var(--accent-cyan);
+}
+
+.playlist-header h3 {
+  font-size: 0.92rem;
+  color: #fff;
+}
+
+.playlist-header p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.playlist-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.playlist-item {
+  display: flex;
+  gap: 0.6rem;
+  background: #0b1325;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px;
+  align-items: center;
+}
+
+.pl-thumb {
+  width: 65px;
+  height: 45px;
+  border-radius: 4px;
+  object-fit: cover;
+  background: #1e293b;
+}
+
+.pl-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.pl-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pl-duration {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.pl-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.pl-btn {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--accent-cyan);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pl-btn:hover {
+  background: #0084ff;
+  color: #fff;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 2rem 0;
+}
+
+/* Footer */
+.app-footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+
+.footer-tip {
+  color: var(--accent-green);
+  margin-top: 4px;
+}

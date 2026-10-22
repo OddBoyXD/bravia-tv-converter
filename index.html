@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Sony Bravia 720p & MP3 Converter</title>
+  
+  <!-- Service Worker for SharedArrayBuffer / WebAssembly on all static hosts -->
+  <script src="https://cdn.jsdelivr.net/npm/coi-serviceworker/coi-serviceworker.min.js"></script>
+  <!-- FFmpeg.wasm v0.11.x (Stable UMD Engine) -->
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="logo-row">
+      <span class="tv-icon">📺</span>
+      <div>
+        <h1>Bravia Converter</h1>
+        <p class="subtitle">Sony KLV-24P413D USB Ready (720p HD & MP3)</p>
+      </div>
+    </div>
+    <div class="spec-pills">
+      <span class="pill">Max 720p @ 30fps</span>
+      <span class="pill">H.264 Main 3.1</span>
+      <span class="pill">yuv420p</span>
+      <span class="pill">Stereo MP3 / AAC</span>
+      <span class="pill">FAT32 / NTFS</span>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" id="tabSingleBtn" onclick="switchTab('single')">
+      🎥 Single Video / Audio
+    </button>
+    <button class="tab-btn" id="tabPlaylistBtn" onclick="switchTab('playlist')">
+      📑 YouTube Playlist
+    </button>
+  </nav>
+
+  <!-- ================= TAB 1: SINGLE URL CONVERTER ================= -->
+  <section class="tab-content active" id="tabSingle">
+    <div class="card">
+      <label class="input-label" for="mediaUrl">Paste YouTube Link or Video URL:</label>
+      <div class="input-group">
+        <input type="text" id="mediaUrl" placeholder="https://youtube.com/watch?v=... or direct .mkv/.mp4" oninput="onUrlChanged()" />
+        <button class="paste-btn" onclick="pasteFromClipboard()" title="Paste">📋</button>
+      </div>
+
+      <!-- Mode Selector: Video vs Audio -->
+      <div class="selector-label">Conversion Mode:</div>
+      <div class="mode-toggles">
+        <button class="mode-btn active" id="modeVideoBtn" onclick="setMode('video')">
+          🎬 Video (720p MP4)
+        </button>
+        <button class="mode-btn" id="modeAudioBtn" onclick="setMode('audio')">
+          🎵 Audio Only (MP3)
+        </button>
+      </div>
+
+      <!-- Quality Selection Row with Live Size Estimator -->
+      <div class="quality-row">
+        <div class="quality-col">
+          <label class="selector-label" for="qualitySelect">Quality Profile:</label>
+          <select id="qualitySelect" onchange="updateEstimatedSize()">
+            <!-- Populated dynamically based on Video / Audio mode -->
+          </select>
+        </div>
+        <div class="size-col">
+          <span class="selector-label">Estimated Size:</span>
+          <div class="est-badge" id="estSizeBadge">~ -- MB</div>
+        </div>
+      </div>
+
+      <!-- Preview Card -->
+      <div class="preview-card" id="previewCard" style="display: none;">
+        <img class="preview-thumb" id="prevThumb" src="" alt="Thumbnail" />
+        <div class="preview-details">
+          <div class="preview-title" id="prevTitle">Loading...</div>
+          <div class="preview-meta" id="prevMeta">Sony Bravia Verified Format</div>
+        </div>
+      </div>
+
+      <!-- Convert Action Button -->
+      <button class="action-btn" id="convertBtn" onclick="processSingleDownload()">
+        ⚡ Convert & Download for TV
+      </button>
+
+      <!-- Progress & Log Section -->
+      <div class="progress-wrap" id="progressWrap" style="display: none;">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+        </div>
+        <div class="progress-status" id="progressStatus">Initializing...</div>
+      </div>
+
+      <div class="console-box" id="consoleBox">Ready. Paste any link to begin.</div>
+    </div>
+  </section>
+
+  <!-- ================= TAB 2: YOUTUBE PLAYLIST ================= -->
+  <section class="tab-content" id="tabPlaylist">
+    <div class="card">
+      <label class="input-label" for="playlistUrl">Paste YouTube Playlist URL:</label>
+      <div class="input-group">
+        <input type="text" id="playlistUrl" placeholder="https://www.youtube.com/playlist?list=PL..." />
+        <button class="paste-btn" onclick="pastePlaylistFromClipboard()" title="Paste">📋</button>
+      </div>
+
+      <div class="playlist-settings-row">
+        <div class="quality-col">
+          <label class="selector-label" for="playlistQualitySelect">Batch Quality:</label>
+          <select id="playlistQualitySelect">
+            <option value="720">720p HD (TV Max - H.264)</option>
+            <option value="480">480p Standard (Fast)</option>
+            <option value="360">360p Compact</option>
+            <option value="mp3-320">🎵 Ultra HQ MP3 (320 kbps)</option>
+            <option value="mp3-192">🎵 Standard MP3 (192 kbps)</option>
+          </select>
+        </div>
+        <button class="fetch-btn" id="fetchPlaylistBtn" onclick="fetchPlaylist()">
+          🔍 Load Playlist
+        </button>
+      </div>
+
+      <!-- Playlist Details Header -->
+      <div class="playlist-header" id="playlistHeader" style="display: none;">
+        <div>
+          <h3 id="playlistTitle">Playlist Title</h3>
+          <p id="playlistCount">0 Videos</p>
+        </div>
+        <button class="batch-download-btn" id="batchDownloadBtn" onclick="startBatchDownload()">
+          📥 Download All (Queue)
+        </button>
+      </div>
+
+      <!-- Playlist Video Items Container -->
+      <div class="playlist-items-list" id="playlistItemsList">
+        <div class="empty-state">No playlist loaded. Paste a link above.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Notice -->
+  <footer class="app-footer">
+    <p>Guaranteed 100% compatible with Sony Bravia <strong>KLV-24P413D</strong> USB playback.</p>
+    <p class="footer-tip">💡 Tip: Format your USB Drive to <strong>FAT32 or NTFS</strong> before copying files.</p>
+  </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
