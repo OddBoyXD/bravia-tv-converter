@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Converted Video Preview - Sony Bravia KLV-24P413D</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .preview-container {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin: 0 auto;
+    }
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    }
+    video {
+      width: 100%;
+      height: auto;
+      display: block;
+      outline: none;
+    }
+    .specs-card {
+      background: rgba(0, 230, 118, 0.08);
+      border: 1px solid rgba(0, 230, 118, 0.3);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .specs-card h3 {
+      font-size: 0.95rem;
+      color: var(--accent-green);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .specs-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .spec-item {
+      font-size: 0.72rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .main-download-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #00e676, #00b0ff);
+      color: #050811;
+      font-weight: 800;
+      font-size: 1.05rem;
+      text-decoration: none;
+      padding: 16px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4);
+      transition: transform 0.2s;
+    }
+    .main-download-btn:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+<div class="preview-container">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="logo-row">
+      <span class="tv-icon">📺</span>
+      <div>
+        <h1>Converted Video Preview</h1>
+        <p class="subtitle">Sony Bravia KLV-24P413D USB Ready (720p HD)</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <!-- Live HTML5 Video Player -->
+    <div class="video-wrapper">
+      <video controls playsinline preload="metadata">
+        <source src="FIFA_WORLD_CUP_2026_SonyBravia_720p.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <!-- Verified Hardware Specs Card -->
+    <div class="specs-card">
+      <h3>✅ Sony Bravia KLV-24P413D Verified Hardware Compatibility</h3>
+      <div class="specs-list">
+        <span class="spec-item">🎬 Resolution: 1280x720 (720p HD)</span>
+        <span class="spec-item">⏱️ Frame Rate: 30 fps (Rock Solid)</span>
+        <span class="spec-item">⚙️ Codec: H.264 Main Profile Level 3.1</span>
+        <span class="spec-item">🎨 Color: yuv420p (8-Bit Standard)</span>
+        <span class="spec-item">🎵 Audio: Stereo AAC @ 44.1kHz</span>
+        <span class="spec-item">⚡ Container: MP4 (+faststart atom)</span>
+        <span class="spec-item">💾 USB: FAT32 & NTFS Ready</span>
+      </div>
+    </div>
+
+    <!-- Download Button -->
+    <a href="FIFA_WORLD_CUP_2026_SonyBravia_720p.mp4" download="INTRO_FIFA_WORLD_CUP_2026_SonyBravia_720p.mp4" class="main-download-btn">
+      <span>📥</span>
+      <span>Download Converted Video (~16.4 MB)</span>
+    </a>
+
+    <a href="index.html" class="action-btn secondary-action" style="text-decoration: none; text-align: center;">
+      ← Return to Bravia Converter
+    </a>
+  </div>
+
+  <footer class="app-footer">
+    <p>Guaranteed 100% compatible with Sony Bravia <strong>KLV-24P413D</strong> USB playback.</p>
+    <p class="footer-tip">💡 Tip: Copy directly to your FAT32 or NTFS formatted USB flash drive.</p>
+  </footer>
+</div>
+
+</body>
+</html>
