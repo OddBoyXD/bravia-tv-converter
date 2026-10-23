@@ -592,6 +592,18 @@ async function runFFmpegTranscode(inputUint8Array, baseTitle, mode, quality, onP
     }
   });
 
+  let detectedAV1 = false;
+  ffmpeg.setLogger(({ type, message }) => {
+    if (message) {
+      if (message.includes('av1') || message.includes('av01') || message.includes('? (?)')) {
+        detectedAV1 = true;
+      }
+      if (message.includes('Error') || message.includes('error') || message.includes('Stream #') || message.includes('Output #') || message.includes('frame=')) {
+        logMessage(`[FFmpeg] ${message}`);
+      }
+    }
+  });
+
   const inputSizeMB = ((inputUint8Array.byteLength || 0) / (1024 * 1024)).toFixed(1);
   logMessage(`Writing ${inputSizeMB} MB to virtual storage (${virtualInput})...`);
   ffmpeg.FS('writeFile', virtualInput, inputUint8Array);
@@ -639,10 +651,16 @@ async function runFFmpegTranscode(inputUint8Array, baseTitle, mode, quality, onP
   try {
     outData = ffmpeg.FS('readFile', virtualOutput);
   } catch (err) {
+    if (detectedAV1) {
+      throw new Error('This video uses YouTube\'s AV1 (av01) codec, which WebAssembly cannot decode in-browser. Please download the H.264 (AVC) version or convert via Termux.');
+    }
     throw new Error('Transcode failed: no output file generated. Please check the log messages above.');
   }
 
   if (!outData || outData.byteLength === 0) {
+    if (detectedAV1) {
+      throw new Error('This video uses YouTube\'s AV1 (av01) codec, which WebAssembly cannot decode in-browser. Please download the H.264 (AVC) version or convert via Termux.');
+    }
     throw new Error('Transcode produced an empty 0-byte file. Please check the log messages above.');
   }
 
