@@ -3,135 +3,223 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Converted Video Preview - Sony Bravia KLV-24P413D</title>
+  <title>Sony Bravia TV - Lyrical Songs Collection</title>
   <link rel="stylesheet" href="style.css" />
   <style>
     .preview-container {
       width: 100%;
-      max-width: 680px;
+      max-width: 720px;
       display: flex;
       flex-direction: column;
       gap: 1.25rem;
       margin: 0 auto;
+      padding: 10px;
     }
-    .video-wrapper {
-      position: relative;
-      width: 100%;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #000;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    .hero-card {
+      background: linear-gradient(135deg, rgba(20, 30, 48, 0.95) 0%, rgba(36, 59, 85, 0.95) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
-    video {
-      width: 100%;
-      height: auto;
-      display: block;
-      outline: none;
+    .badge-tv {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #4ade80;
+      padding: 0.35rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
     }
-    .specs-card {
-      background: rgba(0, 230, 118, 0.08);
-      border: 1px solid rgba(0, 230, 118, 0.3);
-      border-radius: 10px;
-      padding: 12px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    .hero-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
     }
-    .specs-card h3 {
-      font-size: 0.95rem;
-      color: var(--accent-green);
-      display: flex;
+    .hero-desc {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+    .download-btn {
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      color: #ffffff;
+      padding: 0.85rem 1.75rem;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+      transition: transform 0.15s ease, filter 0.15s ease;
+      width: 100%;
+      max-width: 380px;
     }
-    .specs-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
+    .download-btn:active {
+      transform: scale(0.98);
+      filter: brightness(0.9);
+    }
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      text-align: left;
     }
     .spec-item {
-      font-size: 0.72rem;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-color);
-      color: #fff;
-      padding: 3px 8px;
-      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
     }
-    .main-download-btn {
+    .spec-label {
+      font-size: 0.72rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .spec-val {
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+    .tracklist-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+    .tracklist-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .track-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0.4rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+    .track-item:last-child {
+      border-bottom: none;
+    }
+    .track-num {
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      background: linear-gradient(135deg, #00e676, #00b0ff);
-      color: #050811;
-      font-weight: 800;
-      font-size: 1.05rem;
-      text-decoration: none;
-      padding: 16px;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4);
-      transition: transform 0.2s;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
     }
-    .main-download-btn:active {
-      transform: scale(0.98);
+    .track-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   </style>
 </head>
 <body>
-
-<div class="preview-container">
-  <!-- Header -->
-  <header class="app-header">
-    <div class="logo-row">
-      <span class="tv-icon">📺</span>
-      <div>
-        <h1>Converted Video Preview</h1>
-        <p class="subtitle">Sony Bravia KLV-24P413D USB Ready (720p HD)</p>
+  <div class="container">
+    <header class="app-header">
+      <div class="logo-wrapper">
+        <span class="logo-icon">📺</span>
+        <h1>Sony Bravia TV Collection</h1>
       </div>
-    </div>
-  </header>
+      <p class="tagline">31 Lyrical Videos Converted Specifically for KLV-24P413D USB Playback</p>
+    </header>
 
-  <div class="card">
-    <!-- Live HTML5 Video Player -->
-    <div class="video-wrapper">
-      <video controls playsinline preload="metadata">
-        <source src="FIFA_WORLD_CUP_2026_SonyBravia_720p.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-    </div>
+    <main class="preview-container">
+      <section class="hero-card">
+        <span class="badge-tv">✓ SONY BRAVIA KLV-24P413D COMPATIBLE</span>
+        <h2 class="hero-title">31 Lyrical Songs Collection (.ZIP)</h2>
+        <p class="hero-desc">
+          Cleaned & deduplicated across all 3 playlists. All videos longer than 10 mins removed. Ready to extract straight into any FAT32 USB pendrive for 100% smooth playback without lag or format error.
+        </p>
+        
+        <a href="https://github.com/OddBoyXD/bravia-tv-converter/releases/download/v1.0.0-songs/Sony_Bravia_720p_Songs.zip" class="download-btn">
+          ⬇ Download Full ZIP (267 MB)
+        </a>
 
-    <!-- Verified Hardware Specs Card -->
-    <div class="specs-card">
-      <h3>✅ Sony Bravia KLV-24P413D Verified Hardware Compatibility</h3>
-      <div class="specs-list">
-        <span class="spec-item">🎬 Resolution: 1280x720 (720p HD)</span>
-        <span class="spec-item">⏱️ Frame Rate: 30 fps (Rock Solid)</span>
-        <span class="spec-item">⚙️ Codec: H.264 Main Profile Level 3.1</span>
-        <span class="spec-item">🎨 Color: yuv420p (8-Bit Standard)</span>
-        <span class="spec-item">🎵 Audio: Stereo AAC @ 44.1kHz</span>
-        <span class="spec-item">⚡ Container: MP4 (+faststart atom)</span>
-        <span class="spec-item">💾 USB: FAT32 & NTFS Ready</span>
-      </div>
-    </div>
+        <div class="spec-grid">
+          <div class="spec-item">
+            <div class="spec-label">Resolution & FPS</div>
+            <div class="spec-val">1280x720 (720p HD) @ 30fps</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Video Codec</div>
+            <div class="spec-val">H.264 Main Profile Level 3.1</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Audio Codec</div>
+            <div class="spec-val">AAC-LC 128 kbps (Stereo 44.1kHz)</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Container & Flags</div>
+            <div class="spec-val">MP4 with +faststart (Zero delay)</div>
+          </div>
+        </div>
+      </section>
 
-    <!-- Download Button -->
-    <a href="FIFA_WORLD_CUP_2026_SonyBravia_720p.mp4" download="INTRO_FIFA_WORLD_CUP_2026_SonyBravia_720p.mp4" class="main-download-btn">
-      <span>📥</span>
-      <span>Download Converted Video (~16.4 MB)</span>
-    </a>
-
-    <a href="index.html" class="action-btn secondary-action" style="text-decoration: none; text-align: center;">
-      ← Return to Bravia Converter
-    </a>
+      <section class="tracklist-card">
+        <div class="tracklist-title">
+          <span>🎵 Included Lyrical Videos</span>
+          <span style="font-size: 0.8rem; color: #38bdf8; font-weight: normal;">31 Tracks (267 MB)</span>
+        </div>
+        <div class="track-item"><div class="track-num">01</div><div class="track-name">Arijit Singh - Sajni (Laapataa Ladies)</div></div>
+        <div class="track-item"><div class="track-num">02</div><div class="track-name">Arijit Singh - Aaj Se Teri (Padman)</div></div>
+        <div class="track-item"><div class="track-num">03</div><div class="track-name">Bayaan & Sherazam - Safar (Slowed + Reverb)</div></div>
+        <div class="track-item"><div class="track-num">04</div><div class="track-name">Atif Aslam & Shreya Ghoshal - Tere Liye (Prince)</div></div>
+        <div class="track-item"><div class="track-num">05</div><div class="track-name">Aneesh, Sarkar & Hruday - Udi Udi (The Collective Tape)</div></div>
+        <div class="track-item"><div class="track-num">06</div><div class="track-name">Anuv Jain - Husn</div></div>
+        <div class="track-item"><div class="track-num">07</div><div class="track-name">Arijit Singh - Sitaare (Ikkis)</div></div>
+        <div class="track-item"><div class="track-num">08</div><div class="track-name">A.R. Rahman - Tere Bina (Guru)</div></div>
+        <div class="track-item"><div class="track-num">09</div><div class="track-name">Anuv Jain - Jo Tum Mere Ho</div></div>
+        <div class="track-item"><div class="track-num">10</div><div class="track-name">AUR - Tu Hai Kahan</div></div>
+        <div class="track-item"><div class="track-num">11</div><div class="track-name">Faheem Abdullah - Saiyaara</div></div>
+        <div class="track-item"><div class="track-num">12</div><div class="track-name">Shashwat Sachdev & Simran Choudhary - Lutt Le Gaya</div></div>
+        <div class="track-item"><div class="track-num">13</div><div class="track-name">Shashwat Sachdev & Afsana Khan - Naal Nachna</div></div>
+        <div class="track-item"><div class="track-num">14</div><div class="track-name">KR$NA & Dhanda Nyoliwala - Boom Shaka</div></div>
+        <div class="track-item"><div class="track-num">15</div><div class="track-name">Talwiinder - Haseen</div></div>
+        <div class="track-item"><div class="track-num">16</div><div class="track-name">Ed Sheeran & Arijit Singh - Sapphire (Play)</div></div>
+        <div class="track-item"><div class="track-num">17</div><div class="track-name">Banjaare - Barsaat</div></div>
+        <div class="track-item"><div class="track-num">18</div><div class="track-name">Udit Narayan & Shreya Ghoshal - Jugraafiya (Super 30)</div></div>
+        <div class="track-item"><div class="track-num">19</div><div class="track-name">Aditya Rikhari & UNPLG'd - Paro</div></div>
+        <div class="track-item"><div class="track-num">20</div><div class="track-name">Aditya Rikhari - Samjho Na</div></div>
+        <div class="track-item"><div class="track-num">21</div><div class="track-name">Javed Bashir - Ye Tune Kya Kiya</div></div>
+        <div class="track-item"><div class="track-num">22</div><div class="track-name">ARJN & Shreya Ghoshal - Kalyani</div></div>
+        <div class="track-item"><div class="track-num">23</div><div class="track-name">Jubin Nautiyal - Humnava Mere</div></div>
+        <div class="track-item"><div class="track-num">24</div><div class="track-name">Aditya Rikhari - Sahiba</div></div>
+        <div class="track-item"><div class="track-num">25</div><div class="track-name">Talwiinder - Pal Pal</div></div>
+        <div class="track-item"><div class="track-num">26</div><div class="track-name">Arijit Singh - Teri Meri Kahaani (Gabbar Is Back)</div></div>
+        <div class="track-item"><div class="track-num">27</div><div class="track-name">Bayaan & Sherazam - Safar</div></div>
+        <div class="track-item"><div class="track-num">28</div><div class="track-name">Banjaare - Bairan</div></div>
+        <div class="track-item"><div class="track-num">29</div><div class="track-name">Majboor - Sheheryar Rehan x Zoha Waseem</div></div>
+        <div class="track-item"><div class="track-num">30</div><div class="track-name">Udi Udi - Aneesh Poojari</div></div>
+        <div class="track-item"><div class="track-num">31</div><div class="track-name">Lady Gaga & Bruno Mars - Die With A Smile</div></div>
+      </section>
+    </main>
   </div>
-
-  <footer class="app-footer">
-    <p>Guaranteed 100% compatible with Sony Bravia <strong>KLV-24P413D</strong> USB playback.</p>
-    <p class="footer-tip">💡 Tip: Copy directly to your FAT32 or NTFS formatted USB flash drive.</p>
-  </footer>
-</div>
-
 </body>
 </html>
