@@ -35,9 +35,27 @@ def extract_gofile_id(url: str) -> str:
     match = re.search(r'gofile\.io/d/([a-zA-Z0-9_-]+)', url)
     if match:
         return match.group(1)
-    # Direct content ID passed
-    clean = url.strip().split('/')[-1]
+    match = re.search(r'gofile\.io/\?c=([a-zA-Z0-9_-]+)', url)
+    if match:
+        return match.group(1)
+    # Direct content ID or last path segment
+    clean = url.strip().split('?')[0].rstrip('/').split('/')[-1]
     return clean
+
+def collect_gofile_files(node):
+    files = []
+    if not isinstance(node, dict):
+        return files
+    if node.get("type") == "file" and node.get("link"):
+        files.append(node)
+    children = node.get("children") or node.get("contents") or {}
+    if isinstance(children, dict):
+        for child in children.values():
+            files.extend(collect_gofile_files(child))
+    elif isinstance(children, list):
+        for child in children:
+            files.extend(collect_gofile_files(child))
+    return files
 
 def resolve_gofile_url(gofile_url: str):
     content_id = extract_gofile_id(gofile_url)
@@ -100,21 +118,11 @@ def resolve_gofile_url(gofile_url: str):
                 print(f"[debug] GoFile data keys: {list(data.get('data', {}).keys())}")
                 print(f"[debug] GoFile full data: {json.dumps(data.get('data', {}))[:1000]}")
                 
-                # Check children or contents
                 d = data.get("data", {})
-                contents = d.get("contents") or d.get("children") or {}
-                if isinstance(contents, dict):
-                    files = list(contents.values())
-                elif isinstance(contents, list):
-                    files = contents
-                else:
-                    files = []
-                    
-                # If this item itself is a file (has 'link')
-                if d.get("link"):
-                    files.append(d)
+                files = collect_gofile_files(d)
 
                 if files:
+                    # Filter for video/audio or pick the largest file (the movie)
                     files.sort(key=lambda x: x.get("size", 0), reverse=True)
                     file_info = files[0]
                     print(f"[+] Found file in GoFile: {file_info.get('name')} ({file_info.get('size', 0) / (1024*1024):.2f} MB)")

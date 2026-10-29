@@ -969,6 +969,7 @@ function downloadBlob(uint8Array, mime, filename) {
 }
 
 // ================= CLOUD GOFILE & HEAVY MEDIA CONVERTER =================
+const CLOUD_RELAY_ENDPOINT = 'https://bravia-relay.choudhuryranjit12.workers.dev';
 let currentCloudMode = 'video';
 let cloudPollingInterval = null;
 
@@ -999,7 +1000,6 @@ async function startCloudConversion() {
   const trackerCard = document.getElementById('cloudTrackerCard');
   const downloadCard = document.getElementById('cloudDownloadCard');
   const statusText = document.getElementById('cloudStatusText');
-  const progressBar = document.getElementById('cloudProgressBarFill');
 
   const mediaUrl = urlInput ? urlInput.value.trim() : '';
   const customName = customNameInput ? customNameInput.value.trim() : '';
@@ -1010,64 +1010,39 @@ async function startCloudConversion() {
     return;
   }
 
-  // Hide previous result & show tracker
+  // Hide previous result & show live tracker
   if (downloadCard) downloadCard.style.display = 'none';
   if (trackerCard) trackerCard.style.display = 'block';
 
-  setCloudStep(1, '25%', 'Resolving media link and preparing cloud runner...');
+  setCloudStep(1, '20%', 'Connecting to 24/7 Cloud Transcoder...');
 
-  let ghToken = localStorage.getItem('bravia_gh_token');
-  if (!ghToken) {
-    const userEntered = prompt(
-      "🔑 Enter GitHub Personal Access Token to trigger conversion directly from your browser:\n(This is saved locally on your phone so you only need to enter it once)\n\nOr click Cancel to open GitHub Actions directly:",
-      ""
-    );
-    if (userEntered && userEntered.trim()) {
-      ghToken = userEntered.trim();
-      localStorage.setItem('bravia_gh_token', ghToken);
+  try {
+    setCloudStep(1, '35%', 'Initiating cloud runner for GoFile media...');
+    const dispatchResp = await fetch(CLOUD_RELAY_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        media_url: mediaUrl,
+        mode: currentCloudMode,
+        custom_name: customName
+      })
+    });
+
+    const data = await dispatchResp.json();
+    if (!dispatchResp.ok || data.error) {
+      throw new Error(data.error || `HTTP ${dispatchResp.status}`);
     }
-  }
 
-  if (ghToken) {
-    // Trigger via GitHub REST API
-    try {
-      setCloudStep(1, '35%', 'Sending dispatch to GitHub Actions...');
-      const dispatchResp = await fetch('https://api.github.com/repos/OddBoyXD/bravia-tv-converter/actions/workflows/convert.yml/dispatches', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${ghToken}`,
-          'Accept': 'application/vnd.github+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ref: 'main',
-          inputs: {
-            media_url: mediaUrl,
-            mode: currentCloudMode,
-            custom_name: customName
-          }
-        })
-      });
+    setCloudStep(2, '45%', 'Cloud Runner online! Resolving GoFile CDN stream...');
+    startCloudRunPolling(Date.now());
 
-      if (!dispatchResp.ok) {
-        const errText = await dispatchResp.text();
-        throw new Error(`Dispatch failed (${dispatchResp.status}): ${errText}`);
-      }
-
-      setCloudStep(2, '50%', 'Cloud Runner started! Downloading from GoFile (500+ Mbps)...');
-      startCloudRunPolling(ghToken, Date.now());
-
-    } catch (err) {
-      console.error(err);
-      if (statusText) statusText.innerHTML = `⚠️ API error: ${err.message}. <a href="https://github.com/OddBoyXD/bravia-tv-converter/actions/workflows/convert.yml" target="_blank" style="color:#00d2ff;">Click here to run via GitHub</a>`;
-    }
-  } else {
-    // Direct open to GitHub Actions workflow
+  } catch (err) {
+    console.error(err);
     if (statusText) {
-      statusText.innerHTML = `🔗 <a href="https://github.com/OddBoyXD/bravia-tv-converter/actions/workflows/convert.yml" target="_blank" style="color:#00d2ff; text-decoration: underline;">Click here to open GitHub Actions</a> and paste your link into the <strong>media_url</strong> field!`;
+      statusText.innerHTML = `⚠️ Cloud runner initiation error: ${err.message}. Please check the link.`;
     }
-    // Also start polling releases
-    startReleasePolling();
   }
 }
 
@@ -1093,38 +1068,40 @@ function setCloudStep(stepNum, progressPercent, text) {
   if (statusText && text) statusText.textContent = text;
 }
 
-function startCloudRunPolling(token, startTime) {
+function startCloudRunPolling(startTime) {
   if (cloudPollingInterval) clearInterval(cloudPollingInterval);
 
   let checkCount = 0;
   cloudPollingInterval = setInterval(async () => {
     checkCount++;
     try {
-      const runsResp = await fetch('https://api.github.com/repos/OddBoyXD/bravia-tv-converter/actions/runs?per_page=3', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github+json'
-        }
-      });
+      // Public repository actions runs (no authentication required)
+      const runsResp = await fetch('https://api.github.com/repos/OddBoyXD/bravia-tv-converter/actions/runs?per_page=3');
+      if (!runsResp.ok) return;
       const data = await runsResp.json();
       const runs = data.workflow_runs || [];
       const latestRun = runs[0];
 
       if (latestRun) {
-        if (latestRun.status === 'in_progress') {
-          if (checkCount < 4) {
-            setCloudStep(2, '55%', 'Downloading media in cloud runner...');
+        const runStatus = latestRun.status;
+        const runConclusion = latestRun.conclusion;
+
+        if (runStatus === 'queued') {
+          setCloudStep(1, '35%', 'Cloud runner queued in GitHub Action pool...');
+        } else if (runStatus === 'in_progress') {
+          if (checkCount < 3) {
+            setCloudStep(2, '55%', 'Downloading media in cloud runner at 500+ Mbps...');
           } else {
             setCloudStep(3, '75%', 'Transcoding for Sony Bravia (H.264 Main 3.1 720p / AAC Stereo)...');
           }
-        } else if (latestRun.status === 'completed') {
+        } else if (runStatus === 'completed') {
           clearInterval(cloudPollingInterval);
-          if (latestRun.conclusion === 'success') {
+          if (runConclusion === 'success') {
             setCloudStep(4, '90%', 'Finalizing release and download link...');
             fetchLatestReleaseAfterSuccess();
           } else {
             const statusText = document.getElementById('cloudStatusText');
-            if (statusText) statusText.textContent = `❌ Conversion failed with status: ${latestRun.conclusion}`;
+            if (statusText) statusText.textContent = `❌ Conversion stopped with status: ${runConclusion}`;
           }
         }
       }
@@ -1141,19 +1118,21 @@ function startReleasePolling() {
   }, 10000);
 }
 
-async function fetchLatestReleaseAfterSuccess() {
+async function fetchLatestReleaseAfterSuccess(retries = 5) {
   try {
     const resp = await fetch('https://api.github.com/repos/OddBoyXD/bravia-tv-converter/releases/latest');
-    if (!resp.ok) return;
+    if (!resp.ok) {
+      if (retries > 0) setTimeout(() => fetchLatestReleaseAfterSuccess(retries - 1), 3000);
+      return;
+    }
     const rel = await resp.json();
     const assets = rel.assets || [];
     const mediaAsset = assets.find(a => a.name.endsWith('.mp4') || a.name.endsWith('.mp3'));
 
     if (mediaAsset) {
       if (cloudPollingInterval) clearInterval(cloudPollingInterval);
-      setCloudStep(4, '100%', '🎉 Conversion 100% complete!');
+      setCloudStep(4, '100%', '🎉 Conversion 100% complete! TV-ready file created.');
 
-      const trackerCard = document.getElementById('cloudTrackerCard');
       const downloadCard = document.getElementById('cloudDownloadCard');
       const titleEl = document.getElementById('cloudResultFileName');
       const sizeEl = document.getElementById('cloudResultSize');
@@ -1168,6 +1147,8 @@ async function fetchLatestReleaseAfterSuccess() {
       if (downloadCard) downloadCard.style.display = 'block';
 
       loadRecentConversions();
+    } else if (retries > 0) {
+      setTimeout(() => fetchLatestReleaseAfterSuccess(retries - 1), 3000);
     }
   } catch (err) {
     console.error('Error fetching latest release:', err);
