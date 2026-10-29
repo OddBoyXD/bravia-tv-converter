@@ -96,13 +96,25 @@ def resolve_gofile_url(gofile_url: str):
                 timeout=15
             )
             data = resp.json()
-            print(f"[debug] GoFile API response (offset={offset}): status={data.get('status')} raw={resp.text[:300]}")
             if data.get("status") == "ok":
-                contents = data.get("data", {}).get("contents", {})
-                if contents:
-                    # Pick the largest or first media file
+                print(f"[debug] GoFile data keys: {list(data.get('data', {}).keys())}")
+                print(f"[debug] GoFile full data: {json.dumps(data.get('data', {}))[:1000]}")
+                
+                # Check children or contents
+                d = data.get("data", {})
+                contents = d.get("contents") or d.get("children") or {}
+                if isinstance(contents, dict):
                     files = list(contents.values())
-                    # Sort by size descending to prioritize main video
+                elif isinstance(contents, list):
+                    files = contents
+                else:
+                    files = []
+                    
+                # If this item itself is a file (has 'link')
+                if d.get("link"):
+                    files.append(d)
+
+                if files:
                     files.sort(key=lambda x: x.get("size", 0), reverse=True)
                     file_info = files[0]
                     print(f"[+] Found file in GoFile: {file_info.get('name')} ({file_info.get('size', 0) / (1024*1024):.2f} MB)")
