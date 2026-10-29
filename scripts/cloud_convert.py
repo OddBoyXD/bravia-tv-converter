@@ -96,6 +96,7 @@ def resolve_gofile_url(gofile_url: str):
                 timeout=15
             )
             data = resp.json()
+            print(f"[debug] GoFile API response (offset={offset}): status={data.get('status')} raw={resp.text[:300]}")
             if data.get("status") == "ok":
                 contents = data.get("data", {}).get("contents", {})
                 if contents:
