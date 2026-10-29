@@ -46,7 +46,7 @@ def collect_gofile_files(node):
     files = []
     if not isinstance(node, dict):
         return files
-    if node.get("type") == "file" and node.get("link"):
+    if (node.get("type") == "file" or node.get("link")) and node.get("link"):
         files.append(node)
     children = node.get("children") or node.get("contents") or {}
     if isinstance(children, dict):
@@ -181,6 +181,7 @@ def transcode_for_bravia(input_path: str, output_path: str, mode: str = "video")
         # Target: 720p HD MP4 (H.264 Main 3.1, yuv420p, max 30fps, AAC Stereo 192k 44.1kHz, +faststart)
         cmd = [
             "ffmpeg", "-y",
+            "-threads", "0",
             "-i", input_path,
             "-vf", "scale='min(1280,iw)':-2:flags=lanczos",
             "-r", "30",
@@ -188,7 +189,7 @@ def transcode_for_bravia(input_path: str, output_path: str, mode: str = "video")
             "-profile:v", "main",
             "-level", "3.1",
             "-pix_fmt", "yuv420p",
-            "-preset", "fast",
+            "-preset", "veryfast",
             "-crf", "22",
             "-c:a", "aac",
             "-b:a", "192k",
@@ -201,6 +202,7 @@ def transcode_for_bravia(input_path: str, output_path: str, mode: str = "video")
         # Audio Mode: MP3 320kbps Stereo 44.1kHz
         cmd = [
             "ffmpeg", "-y",
+            "-threads", "0",
             "-i", input_path,
             "-vn",
             "-c:a", "libmp3lame",
@@ -248,7 +250,11 @@ def main():
     
     account_token = None
     if "gofile.io" in input_url:
-        direct_url, orig_filename, session, account_token = resolve_gofile_url(input_url)
+        if "/download/" in input_url:
+            direct_url = input_url
+            orig_filename = input_url.split('/')[-1].split('?')[0] or "gofile_media.mp4"
+        else:
+            direct_url, orig_filename, session, account_token = resolve_gofile_url(input_url)
     else:
         direct_url = input_url
         orig_filename = input_url.split('/')[-1].split('?')[0] or "media_input.mp4"
