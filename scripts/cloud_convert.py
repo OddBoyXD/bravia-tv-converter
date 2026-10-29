@@ -127,14 +127,19 @@ def resolve_gofile_url(gofile_url: str):
         
     direct_link = file_info.get("link")
     filename = file_info.get("name", f"video_{content_id}.mp4")
-    return direct_link, filename, session
+    return direct_link, filename, session, account_token
 
-def download_file(url: str, output_path: str, session: requests.Session = None):
+def download_file(url: str, output_path: str, session: requests.Session = None, account_token: str = None):
     print(f"[*] Downloading file from: {url}")
     downloader = session or requests.Session()
-    headers = {'User-Agent': GOFILE_USER_AGENT}
+    headers = {
+        'User-Agent': GOFILE_USER_AGENT,
+        'Referer': 'https://gofile.io/'
+    }
+    if account_token:
+        headers['Cookie'] = f"accountToken={account_token}"
     
-    with downloader.get(url, headers=headers, stream=True, timeout=60) as r:
+    with downloader.get(url, headers=headers, stream=True, timeout=120) as r:
         r.raise_for_status()
         total_size = int(r.headers.get('content-length', 0))
         downloaded = 0
@@ -156,7 +161,10 @@ def download_file(url: str, output_path: str, session: requests.Session = None):
                             print(f"    -> Downloaded: {mb:.1f} MB")
                         last_log = time.time()
                         
-    print(f"[+] Download complete: {output_path} ({os.path.getsize(output_path) / (1024*1024):.2f} MB)")
+    final_size = os.path.getsize(output_path)
+    if final_size == 0:
+        raise RuntimeError("Downloaded file is 0 bytes! GoFile may have blocked the direct stream.")
+    print(f"[+] Download complete: {output_path} ({final_size / (1024*1024):.2f} MB)")
 
 def transcode_for_bravia(input_path: str, output_path: str, mode: str = "video"):
     print(f"[*] Starting FFmpeg conversion for Sony Bravia (mode={mode})...")
@@ -230,8 +238,9 @@ def main():
     input_url = args.url.strip()
     session = None
     
+    account_token = None
     if "gofile.io" in input_url:
-        direct_url, orig_filename, session = resolve_gofile_url(input_url)
+        direct_url, orig_filename, session, account_token = resolve_gofile_url(input_url)
     else:
         direct_url = input_url
         orig_filename = input_url.split('/')[-1].split('?')[0] or "media_input.mp4"
@@ -246,7 +255,7 @@ def main():
     
     try:
         # Download
-        download_file(direct_url, input_file, session)
+        download_file(direct_url, input_file, session, account_token)
         
         # Transcode
         transcode_for_bravia(input_file, output_file, args.mode)
