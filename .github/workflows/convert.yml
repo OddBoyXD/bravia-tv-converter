@@ -83,9 +83,14 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### ⬇️ [Click Here to Download TV-Ready Video]($DOWNLOAD_URL)" >> $GITHUB_STEP_SUMMARY
 
-      - name: 🗄️ Upload Artifact (Backup Storage)
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.transcode.outputs.output_file }}
-          path: ${{ steps.transcode.outputs.output_file }}
-          retention-days: 14
+      - name: 🧹 Auto-Prune Old Releases (Infinite Lifetime Storage Maintenance)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Keeping only the 5 most recent TV builds to prevent storage bloat..."
+          gh release list --limit 50 | grep "tv-build-" | awk '{print $3}' | tail -n +6 | while read -r old_tag; do
+            if [ -n "$old_tag" ]; then
+              echo "Pruning older release: $old_tag"
+              gh release delete "$old_tag" --cleanup-tag -y || true
+            fi
+          done
