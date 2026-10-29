@@ -1,0 +1,91 @@
+name: 📺 Bravia Cloud TV Converter
+
+on:
+  workflow_dispatch:
+    inputs:
+      media_url:
+        description: 'GoFile Link or Direct Media URL (e.g. https://gofile.io/d/YvXabCy1)'
+        required: true
+        type: string
+      mode:
+        description: 'Output Format'
+        required: true
+        default: 'video'
+        type: choice
+        options:
+          - video
+          - audio
+      custom_name:
+        description: 'Custom Output File Name (Optional)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    name: ⚡ Cloud Transcode & Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Dependencies & FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python3 -m pip install --upgrade pip
+          pip install requests
+
+      - name: 🚀 Run Cloud Transcoding
+        id: transcode
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NAME_ARG=""
+          if [ -n "${{ github.event.inputs.custom_name }}" ]; then
+            NAME_ARG="--name '${{ github.event.inputs.custom_name }}'"
+          fi
+          
+          python3 scripts/cloud_convert.py \
+            --url "${{ github.event.inputs.media_url }}" \
+            --mode "${{ github.event.inputs.mode }}" \
+            $NAME_ARG
+
+      - name: 📦 Create Direct GitHub Release & Upload Asset
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="tv-build-$(date +'%Y%m%d-%H%M%S')"
+          OUTPUT_FILE="${{ steps.transcode.outputs.output_file }}"
+          
+          echo "Uploading $OUTPUT_FILE to GitHub Release $TAG_NAME..."
+          
+          gh release create "$TAG_NAME" "$OUTPUT_FILE" \
+            --title "Sony Bravia Converted Media ($TAG_NAME)" \
+            --notes "Transcoded strictly for Sony Bravia KLV-24P413D USB Playback (720p H.264 Main 3.1, yuv420p, Stereo Audio)."
+            
+          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/${TAG_NAME}/${OUTPUT_FILE}"
+          echo "download_url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
+          
+          echo "## 📺 Conversion Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "Your file is ready for your Sony Bravia TV:" >> $GITHUB_STEP_SUMMARY
+          echo "- **File Name:** \`$OUTPUT_FILE\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **File Size:** \`${{ steps.transcode.outputs.file_size_mb }} MB\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Format:** Sony Bravia KLV-24P413D USB Ready (720p H.264 / AAC)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ⬇️ [Click Here to Download TV-Ready Video]($DOWNLOAD_URL)" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🗄️ Upload Artifact (Backup Storage)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.transcode.outputs.output_file }}
+          path: ${{ steps.transcode.outputs.output_file }}
+          retention-days: 14

@@ -15,7 +15,13 @@ A 100% free, 24/7 web application designed to convert, downscale, and download a
 ---
 
 ## ✨ Features
-1. **Direct Video & Audio URL Conversion**:
+1. **⚡ GoFile & 24/7 Cloud TV Transcoder (Zero Phone Load)**:
+   - Paste any **GoFile URL** (e.g. `https://gofile.io/d/YvXabCy1`) or heavy movie link.
+   - Bypasses GoFile anti-scraping checks dynamically and downloads at 500+ Mbps directly in the cloud.
+   - Runs full hardware-constrained FFmpeg transcoding inside **GitHub Actions (4 vCPUs, 16GB RAM, 100GB SSD)**.
+   - Generates permanent, unlimited bandwidth 1-click download links via GitHub Releases.
+   - Zero phone battery drain, zero mobile data wasted on raw file transcoding.
+2. **Direct Video & Audio URL Conversion**:
    - Accepts direct links to `.mp4`, `.mkv`, `.webm`, `.avi`, `.mov`, `.flv`, `.ts`, `.mp3`, `.m4a`, `.wav`, etc.
    - Client-side streaming download with live percentage indicator and multi-mirror CORS bypass.
    - Converts directly in-browser using FFmpeg.wasm with exact Sony Bravia KLV-24P413D hardware constraints.

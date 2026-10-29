@@ -750,3 +750,208 @@ select {
   color: var(--accent-green);
   margin-top: 4px;
 }
+
+/* ================= CLOUD CONVERTER STYLES ================= */
+.cloud-header-banner {
+  background: linear-gradient(135deg, rgba(0, 132, 255, 0.15) 0%, rgba(0, 210, 255, 0.05) 100%);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.cloud-badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #0084ff, #00d2ff);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.cloud-header-banner h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.35rem;
+}
+
+.cloud-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.cloud-desc strong {
+  color: var(--accent-cyan);
+}
+
+.cloud-text-input {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-main);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.cloud-text-input:focus {
+  border-color: var(--border-active);
+}
+
+.cloud-action-btn {
+  background: linear-gradient(90deg, #0084ff 0%, #00d2ff 100%);
+  box-shadow: 0 4px 15px rgba(0, 132, 255, 0.3);
+}
+
+.cloud-action-btn:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(0, 132, 255, 0.45);
+}
+
+/* Cloud Step Tracker */
+.cloud-tracker-card {
+  background: rgba(10, 15, 29, 0.8);
+  border: 1px solid rgba(0, 210, 255, 0.25);
+  border-radius: var(--radius);
+  padding: 1.15rem;
+  margin-top: 1.25rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.cloud-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.cloud-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.cloud-step.active {
+  opacity: 1;
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.cloud-step.done {
+  opacity: 1;
+  color: var(--accent-green);
+}
+
+.step-icon {
+  font-size: 1.1rem;
+}
+
+.cloud-status-text {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 0.65rem;
+  font-style: italic;
+}
+
+/* Recent Conversions */
+.recent-conversions-box {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.25rem;
+}
+
+.recent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.refresh-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--accent-cyan);
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background: rgba(0, 210, 255, 0.1);
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.recent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(10, 15, 29, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+  transition: border-color 0.2s ease;
+}
+
+.recent-item:hover {
+  border-color: rgba(0, 210, 255, 0.4);
+}
+
+.recent-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.recent-item-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.recent-item-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.recent-download-btn {
+  background: var(--accent-green);
+  color: #000;
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: transform 0.1s ease, filter 0.2s ease;
+}
+
+.recent-download-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+

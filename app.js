@@ -97,7 +97,13 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-  if (tab === 'single') {
+  if (tab === 'cloud') {
+    const cloudBtn = document.getElementById('tabCloudBtn');
+    const cloudTab = document.getElementById('tabCloud');
+    if (cloudBtn) cloudBtn.classList.add('active');
+    if (cloudTab) cloudTab.classList.add('active');
+    loadRecentConversions();
+  } else if (tab === 'single') {
     document.getElementById('tabSingleBtn').classList.add('active');
     document.getElementById('tabSingle').classList.add('active');
   } else {
@@ -961,3 +967,263 @@ function downloadBlob(uint8Array, mime, filename) {
   triggerFileDownload(url, filename);
   setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
+
+// ================= CLOUD GOFILE & HEAVY MEDIA CONVERTER =================
+let currentCloudMode = 'video';
+let cloudPollingInterval = null;
+
+function setCloudMode(mode) {
+  currentCloudMode = mode;
+  const videoBtn = document.getElementById('cloudModeVideoBtn');
+  const audioBtn = document.getElementById('cloudModeAudioBtn');
+  if (videoBtn) videoBtn.classList.toggle('active', mode === 'video');
+  if (audioBtn) audioBtn.classList.toggle('active', mode === 'audio');
+}
+
+async function pasteGofileFromClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    const input = document.getElementById('gofileUrl');
+    if (input) {
+      input.value = text.trim();
+      input.focus();
+    }
+  } catch (err) {
+    alert('Please allow clipboard permission or paste manually.');
+  }
+}
+
+async function startCloudConversion() {
+  const urlInput = document.getElementById('gofileUrl');
+  const customNameInput = document.getElementById('cloudCustomName');
+  const trackerCard = document.getElementById('cloudTrackerCard');
+  const downloadCard = document.getElementById('cloudDownloadCard');
+  const statusText = document.getElementById('cloudStatusText');
+  const progressBar = document.getElementById('cloudProgressBarFill');
+
+  const mediaUrl = urlInput ? urlInput.value.trim() : '';
+  const customName = customNameInput ? customNameInput.value.trim() : '';
+
+  if (!mediaUrl) {
+    alert('Please paste a GoFile URL or direct video link first!');
+    if (urlInput) urlInput.focus();
+    return;
+  }
+
+  // Hide previous result & show tracker
+  if (downloadCard) downloadCard.style.display = 'none';
+  if (trackerCard) trackerCard.style.display = 'block';
+
+  setCloudStep(1, '25%', 'Resolving media link and preparing cloud runner...');
+
+  let ghToken = localStorage.getItem('bravia_gh_token');
+  if (!ghToken) {
+    const userEntered = prompt(
+      "🔑 Enter GitHub Personal Access Token to trigger conversion directly from your browser:\n(This is saved locally on your phone so you only need to enter it once)\n\nOr click Cancel to open GitHub Actions directly:",
+      ""
+    );
+    if (userEntered && userEntered.trim()) {
+      ghToken = userEntered.trim();
+      localStorage.setItem('bravia_gh_token', ghToken);
+    }
+  }
+
+  if (ghToken) {
+    // Trigger via GitHub REST API
+    try {
+      setCloudStep(1, '35%', 'Sending dispatch to GitHub Actions...');
+      const dispatchResp = await fetch('https://api.github.com/repos/OddBoyXD/bravia-tv-converter/actions/workflows/convert.yml/dispatches', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${ghToken}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ref: 'main',
+          inputs: {
+            media_url: mediaUrl,
+            mode: currentCloudMode,
+            custom_name: customName
+          }
+        })
+      });
+
+      if (!dispatchResp.ok) {
+        const errText = await dispatchResp.text();
+        throw new Error(`Dispatch failed (${dispatchResp.status}): ${errText}`);
+      }
+
+      setCloudStep(2, '50%', 'Cloud Runner started! Downloading from GoFile (500+ Mbps)...');
+      startCloudRunPolling(ghToken, Date.now());
+
+    } catch (err) {
+      console.error(err);
+      if (statusText) statusText.innerHTML = `⚠️ API error: ${err.message}. <a href="https://github.com/OddBoyXD/bravia-tv-converter/actions/workflows/convert.yml" target="_blank" style="color:#00d2ff;">Click here to run via GitHub</a>`;
+    }
+  } else {
+    // Direct open to GitHub Actions workflow
+    if (statusText) {
+      statusText.innerHTML = `🔗 <a href="https://github.com/OddBoyXD/bravia-tv-converter/actions/workflows/convert.yml" target="_blank" style="color:#00d2ff; text-decoration: underline;">Click here to open GitHub Actions</a> and paste your link into the <strong>media_url</strong> field!`;
+    }
+    // Also start polling releases
+    startReleasePolling();
+  }
+}
+
+function setCloudStep(stepNum, progressPercent, text) {
+  const steps = ['step1', 'step2', 'step3', 'step4'];
+  steps.forEach((sId, idx) => {
+    const el = document.getElementById(sId);
+    if (el) {
+      if (idx + 1 < stepNum) {
+        el.className = 'cloud-step done';
+      } else if (idx + 1 === stepNum) {
+        el.className = 'cloud-step active';
+      } else {
+        el.className = 'cloud-step';
+      }
+    }
+  });
+
+  const progressBar = document.getElementById('cloudProgressBarFill');
+  if (progressBar) progressBar.style.width = progressPercent;
+
+  const statusText = document.getElementById('cloudStatusText');
+  if (statusText && text) statusText.textContent = text;
+}
+
+function startCloudRunPolling(token, startTime) {
+  if (cloudPollingInterval) clearInterval(cloudPollingInterval);
+
+  let checkCount = 0;
+  cloudPollingInterval = setInterval(async () => {
+    checkCount++;
+    try {
+      const runsResp = await fetch('https://api.github.com/repos/OddBoyXD/bravia-tv-converter/actions/runs?per_page=3', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github+json'
+        }
+      });
+      const data = await runsResp.json();
+      const runs = data.workflow_runs || [];
+      const latestRun = runs[0];
+
+      if (latestRun) {
+        if (latestRun.status === 'in_progress') {
+          if (checkCount < 4) {
+            setCloudStep(2, '55%', 'Downloading media in cloud runner...');
+          } else {
+            setCloudStep(3, '75%', 'Transcoding for Sony Bravia (H.264 Main 3.1 720p / AAC Stereo)...');
+          }
+        } else if (latestRun.status === 'completed') {
+          clearInterval(cloudPollingInterval);
+          if (latestRun.conclusion === 'success') {
+            setCloudStep(4, '90%', 'Finalizing release and download link...');
+            fetchLatestReleaseAfterSuccess();
+          } else {
+            const statusText = document.getElementById('cloudStatusText');
+            if (statusText) statusText.textContent = `❌ Conversion failed with status: ${latestRun.conclusion}`;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Polling error:', e);
+    }
+  }, 5000);
+}
+
+function startReleasePolling() {
+  if (cloudPollingInterval) clearInterval(cloudPollingInterval);
+  cloudPollingInterval = setInterval(() => {
+    fetchLatestReleaseAfterSuccess();
+  }, 10000);
+}
+
+async function fetchLatestReleaseAfterSuccess() {
+  try {
+    const resp = await fetch('https://api.github.com/repos/OddBoyXD/bravia-tv-converter/releases/latest');
+    if (!resp.ok) return;
+    const rel = await resp.json();
+    const assets = rel.assets || [];
+    const mediaAsset = assets.find(a => a.name.endsWith('.mp4') || a.name.endsWith('.mp3'));
+
+    if (mediaAsset) {
+      if (cloudPollingInterval) clearInterval(cloudPollingInterval);
+      setCloudStep(4, '100%', '🎉 Conversion 100% complete!');
+
+      const trackerCard = document.getElementById('cloudTrackerCard');
+      const downloadCard = document.getElementById('cloudDownloadCard');
+      const titleEl = document.getElementById('cloudResultFileName');
+      const sizeEl = document.getElementById('cloudResultSize');
+      const linkBtn = document.getElementById('cloudDownloadLinkBtn');
+
+      if (titleEl) titleEl.textContent = mediaAsset.name;
+      if (sizeEl) sizeEl.textContent = `${(mediaAsset.size / (1024 * 1024)).toFixed(1)} MB`;
+      if (linkBtn) {
+        linkBtn.href = mediaAsset.browser_download_url;
+        linkBtn.setAttribute('download', mediaAsset.name);
+      }
+      if (downloadCard) downloadCard.style.display = 'block';
+
+      loadRecentConversions();
+    }
+  } catch (err) {
+    console.error('Error fetching latest release:', err);
+  }
+}
+
+async function loadRecentConversions() {
+  const container = document.getElementById('recentConversionsList');
+  if (!container) return;
+
+  try {
+    const resp = await fetch('https://api.github.com/repos/OddBoyXD/bravia-tv-converter/releases?per_page=6');
+    if (!resp.ok) {
+      container.innerHTML = '<div class="empty-state">No conversions recorded yet.</div>';
+      return;
+    }
+    const releases = await resp.json();
+    const items = [];
+
+    releases.forEach(rel => {
+      (rel.assets || []).forEach(asset => {
+        if (asset.name.endsWith('.mp4') || asset.name.endsWith('.mp3')) {
+          items.push({
+            name: asset.name,
+            sizeMb: (asset.size / (1024 * 1024)).toFixed(1),
+            url: asset.browser_download_url,
+            date: new Date(asset.created_at).toLocaleDateString()
+          });
+        }
+      });
+    });
+
+    if (items.length === 0) {
+      container.innerHTML = '<div class="empty-state">No converted files yet. Paste a GoFile link above!</div>';
+      return;
+    }
+
+    container.innerHTML = items.map(item => `
+      <div class="recent-item">
+        <div class="recent-item-info">
+          <span class="recent-item-title" title="${item.name}">${item.name}</span>
+          <span class="recent-item-meta">💾 ${item.sizeMb} MB • 📅 ${item.date}</span>
+        </div>
+        <a class="recent-download-btn" href="${item.url}" download>
+          ⬇️ Download
+        </a>
+      </div>
+    `).join('');
+
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state">Could not load recent files.</div>';
+  }
+}
+
+// Auto load recent conversions when page initializes
+document.addEventListener('DOMContentLoaded', () => {
+  loadRecentConversions();
+});
+

@@ -35,7 +35,10 @@
 
   <!-- Navigation Tabs -->
   <nav class="nav-tabs">
-    <button class="tab-btn active" id="tabSingleBtn" onclick="switchTab('single')">
+    <button class="tab-btn active" id="tabCloudBtn" onclick="switchTab('cloud')">
+      ⚡ GoFile & Cloud TV
+    </button>
+    <button class="tab-btn" id="tabSingleBtn" onclick="switchTab('single')">
       🎥 Single Video / Audio
     </button>
     <button class="tab-btn" id="tabPlaylistBtn" onclick="switchTab('playlist')">
@@ -43,8 +46,103 @@
     </button>
   </nav>
 
+  <!-- ================= TAB 0: GOFILE & CLOUD CONVERTER ================= -->
+  <section class="tab-content active" id="tabCloud">
+    <div class="card">
+      <div class="cloud-header-banner">
+        <span class="cloud-badge">☁️ 24/7 Cloud Engine</span>
+        <h3>GoFile & Heavy Movie TV Converter</h3>
+        <p class="cloud-desc">
+          Zero phone battery & data waste. Transcodes any video directly in the cloud at 500+ Mbps into <strong>Sony Bravia 720p HD MP4 (H.264 / AAC)</strong> with direct 1-click download.
+        </p>
+      </div>
+
+      <!-- GoFile URL Input -->
+      <label class="input-label" for="gofileUrl">1. Paste GoFile URL or Direct Video Link:</label>
+      <div class="input-group">
+        <input type="text" id="gofileUrl" placeholder="https://gofile.io/d/YvXabCy1" />
+        <button class="paste-btn" onclick="pasteGofileFromClipboard()" title="Paste from Clipboard">📋</button>
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="selector-label">2. Target Sony Bravia Format:</div>
+      <div class="mode-toggles">
+        <button class="mode-btn active" id="cloudModeVideoBtn" onclick="setCloudMode('video')">
+          🎬 720p HD Video (H.264 / AAC MP4)
+        </button>
+        <button class="mode-btn" id="cloudModeAudioBtn" onclick="setCloudMode('audio')">
+          🎵 High Quality Audio (320kbps MP3)
+        </button>
+      </div>
+
+      <!-- Custom File Name (Optional) -->
+      <div class="optional-row" style="margin-top: 12px;">
+        <label class="selector-label" for="cloudCustomName">Custom File Name (Optional):</label>
+        <input type="text" id="cloudCustomName" class="cloud-text-input" placeholder="e.g. My_Movie_Name" />
+      </div>
+
+      <!-- Trigger Action Button -->
+      <div class="actions-row" style="margin-top: 16px;">
+        <button class="action-btn primary-action cloud-action-btn" id="startCloudBtn" onclick="startCloudConversion()">
+          ⚡ Start 24/7 Cloud Transcoding
+        </button>
+      </div>
+
+      <!-- Cloud Progress & Tracker Card -->
+      <div class="cloud-tracker-card" id="cloudTrackerCard" style="display: none;">
+        <div class="cloud-step-list">
+          <div class="cloud-step active" id="step1">
+            <span class="step-icon">🔍</span>
+            <span class="step-text">Resolving GoFile CDN Direct Link...</span>
+          </div>
+          <div class="cloud-step" id="step2">
+            <span class="step-icon">⚡</span>
+            <span class="step-text">Downloading to Cloud Runner (500+ Mbps)...</span>
+          </div>
+          <div class="cloud-step" id="step3">
+            <span class="step-icon">📺</span>
+            <span class="step-text">Transcoding to Sony Bravia 720p H.264 + AAC...</span>
+          </div>
+          <div class="cloud-step" id="step4">
+            <span class="step-icon">📦</span>
+            <span class="step-text">Generating Direct 1-Click Download URL...</span>
+          </div>
+        </div>
+        <div class="progress-bar-bg" style="margin-top: 14px;">
+          <div class="progress-bar-fill" id="cloudProgressBarFill" style="width: 25%;"></div>
+        </div>
+        <div class="cloud-status-text" id="cloudStatusText">Connecting to GitHub Actions cloud worker...</div>
+      </div>
+
+      <!-- Ready Download Card -->
+      <div class="download-result-card" id="cloudDownloadCard" style="display: none; margin-top: 16px;">
+        <div class="result-header">
+          <span class="result-icon">🎉</span>
+          <div class="result-info">
+            <div class="result-title" id="cloudResultFileName">video_SonyBravia_720p.mp4</div>
+            <div class="result-specs">Sony Bravia KLV-24P413D USB Ready (720p H.264 / AAC)</div>
+          </div>
+        </div>
+        <a id="cloudDownloadLinkBtn" class="download-ready-btn" href="#" target="_blank" download>
+          ⬇️ Download TV-Ready File (<span id="cloudResultSize">-- MB</span>)
+        </a>
+      </div>
+
+      <!-- Recent Conversions Section -->
+      <div class="recent-conversions-box" id="recentConversionsBox" style="margin-top: 24px;">
+        <div class="recent-header">
+          <span class="selector-label">📂 Recent Converted TV Files:</span>
+          <button class="refresh-btn" onclick="loadRecentConversions()" title="Refresh List">🔄 Refresh</button>
+        </div>
+        <div id="recentConversionsList" class="recent-list">
+          <div class="loading-recent">Loading previous cloud conversions...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= TAB 1: SINGLE URL CONVERTER ================= -->
-  <section class="tab-content active" id="tabSingle">
+  <section class="tab-content" id="tabSingle">
     <div class="card">
       
       <!-- Input Mode: URL or Local Device File -->
