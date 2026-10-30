@@ -1,0 +1,51 @@
+name: 📄 Generate CBSE Bihar & Tripura Sheets
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-sheets:
+    name: 🎨 Render 300 DPI Sheets & PDF
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install System Fonts & Python Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-dejavu-core fonts-liberation
+          python3 -m pip install --upgrade pip
+          pip install Pillow requests
+
+      - name: 🚀 Run Sheet Generator
+        run: |
+          python3 scripts/generate_cbse_sheets.py
+
+      - name: 📦 Publish Release with PNGs and PDF
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="cbse-sheets-$(date +'%Y%m%d-%H%M%S')"
+          echo "Creating Release $TAG_NAME..."
+          gh release create "$TAG_NAME" output_cbse/* \
+            --title "CBSE Class 10 Bihar & Tripura Project Print Sheets" \
+            --notes "High-resolution 300 DPI A4 print sheets (PNG) and compiled PDF ready for cutting and pasting."
+
+          echo "Latest release tag: $TAG_NAME"
+          # Also tag a permanent fixed release for easy downloading
+          if gh release view "cbse-latest" >/dev/null 2>&1; then
+            gh release delete "cbse-latest" --cleanup-tag -y || true
+          fi
+          gh release create "cbse-latest" output_cbse/* \
+            --title "CBSE Project Assets (Latest)" \
+            --notes "Current compiled print sheets."
