@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """
-CBSE Class 10 English Project Sheet Generator (V2 - 16:9 Uniform Standard)
+CBSE Class 10 English Project Sheet Generator (V3 - Perfect Middle Centering)
 "Bihar and Tripura: A Comparison of Cultural Heritage, Festivals, and Food"
 
 Features:
 - Exact 16:9 ratio for all photos (1080x608 px inside cards)
-- 100% uniform card dimensions across all pages (1130x720 px)
-- Simple text headline with Page number only (no paragraphs, no badges, no descriptions)
+- 100% uniform card dimensions across all pages (1130x725 px)
+- All headlines and text mathematically centered in the middle of each photo card (anchor="mt" / anchor="mm")
+- No page numbers in headlines, no descriptions, no clutter
 - Authentic HD photography (real Wikimedia Commons assets, no AI)
-- Kharchi Puja festival celebration HD photo
-- Sheet 4: Dedicated State Maps of Bihar and Tripura with clean ruled handwriting gaps
+- Live Kharchi Puja celebration HD photo
+- Sheet 4: Dedicated State Maps of Bihar and Tripura with centered headlines & handwriting lines
 - Output: 4 print-ready A4 PNGs (300 DPI) and 1 compiled PDF
 """
 
@@ -37,7 +38,7 @@ IMG_W = 1080
 IMG_H = 608  # 1080 * 9 / 16 = 607.5 -> 608 px
 PAD_INNER = 25
 HEADLINE_H = 55
-CARD_H = PAD_INNER + IMG_H + 12 + HEADLINE_H + PAD_INNER  # 25 + 608 + 12 + 55 + 25 = 725 px
+CARD_H = PAD_INNER + IMG_H + 12 + HEADLINE_H + PAD_INNER  # 725 px
 
 def get_font(size, bold=False):
     candidates = [
@@ -74,6 +75,7 @@ def crop_to_16_9(img, target_w, target_h):
 def render_uniform_card(canvas, box, img_obj, headline, comparison_pair=None):
     draw = ImageDraw.Draw(canvas)
     x0, y0, x1, y1 = box
+    card_center_x = (x0 + x1) // 2
 
     # 1. Dashed Scissor Cut Border
     draw_dashed_rect(draw, x0, y0, x1, y1, COLOR_BORDER, dash_len=22, space_len=14, width=3)
@@ -102,21 +104,24 @@ def render_uniform_card(canvas, box, img_obj, headline, comparison_pair=None):
         draw.rectangle([(px, py), (px + half_w, py + IMG_H)], outline=COLOR_PHOTO_BORDER, width=2)
         draw.rectangle([(px + half_w + 8, py), (px + IMG_W, py + IMG_H)], outline=COLOR_PHOTO_BORDER, width=2)
 
-        # Subtle bottom labels for each side
+        # Centered bottom labels for each side
         font_sub = get_font(20, bold=True)
-        draw.rectangle([(px + 10, py + IMG_H - 38), (px + half_w - 10, py + IMG_H - 10)], fill=(0, 0, 0))
-        draw.text((px + 20, py + IMG_H - 35), lbl1, fill=(255, 255, 255), font=font_sub)
+        h1_cx = px + half_w // 2
+        lbl1_bbox = draw.textbbox((0, 0), lbl1, font=font_sub)
+        lbl1_w = (lbl1_bbox[2] - lbl1_bbox[0]) + 24
+        draw.rounded_rectangle([(h1_cx - lbl1_w // 2, py + IMG_H - 40), (h1_cx + lbl1_w // 2, py + IMG_H - 10)], radius=4, fill=(0, 0, 0))
+        draw.text((h1_cx, py + IMG_H - 25), lbl1, fill=(255, 255, 255), font=font_sub, anchor="mm")
 
-        draw.rectangle([(px + half_w + 18, py + IMG_H - 38), (px + IMG_W - 10, py + IMG_H - 10)], fill=(0, 0, 0))
-        draw.text((px + half_w + 28, py + IMG_H - 35), lbl2, fill=(255, 255, 255), font=font_sub)
+        h2_cx = px + half_w + 8 + half_w // 2
+        lbl2_bbox = draw.textbbox((0, 0), lbl2, font=font_sub)
+        lbl2_w = (lbl2_bbox[2] - lbl2_bbox[0]) + 24
+        draw.rounded_rectangle([(h2_cx - lbl2_w // 2, py + IMG_H - 40), (h2_cx + lbl2_w // 2, py + IMG_H - 10)], radius=4, fill=(0, 0, 0))
+        draw.text((h2_cx, py + IMG_H - 25), lbl2, fill=(255, 255, 255), font=font_sub, anchor="mm")
 
-    # 4. Simple Text Headline (Centered below image, no descriptions)
-    text_y = py + IMG_H + 16
+    # 4. Simple Text Headline - EXACT HORIZONTAL MIDDLE CENTERING
+    text_y = py + IMG_H + 20
     font_head = get_font(30, bold=True)
-    bbox = draw.textbbox((0, 0), headline, font=font_head)
-    tw = bbox[2] - bbox[0]
-    tx = x0 + (CARD_W - tw) // 2
-    draw.text((tx, text_y), headline, fill=COLOR_TEXT, font=font_head)
+    draw.text((card_center_x, text_y), headline, fill=COLOR_TEXT, font=font_head, anchor="mt")
 
 def create_blank_sheet():
     img = Image.new("RGB", (PAGE_W, PAGE_H), COLOR_BG)
@@ -127,6 +132,7 @@ def render_state_map_card(canvas, box, map_img, headline):
     x0, y0, x1, y1 = box
     card_w = x1 - x0
     card_h = y1 - y0
+    card_center_x = (x0 + x1) // 2
 
     # Dashed Scissor Cut Border
     draw_dashed_rect(draw, x0, y0, x1, y1, COLOR_BORDER, dash_len=24, space_len=16, width=3)
@@ -147,19 +153,19 @@ def render_state_map_card(canvas, box, map_img, headline):
     my = y0 + pad + (box_h - rmh) // 2
     canvas.paste(resized_map, (mx, my))
 
-    # Simple Headline (No descriptions)
+    # Simple Headline - EXACT MIDDLE CENTERED
     gap_y = y0 + pad + box_h + 16
-    font_head = get_font(36, bold=True)
-    draw.text((x0 + pad + 20, gap_y), headline, fill=COLOR_TEXT, font=font_head)
+    font_head = get_font(38, bold=True)
+    draw.text((card_center_x, gap_y), headline, fill=COLOR_TEXT, font=font_head, anchor="mt")
 
-    # Ruled Handwriting Lines for Student Notes
+    # Ruled Handwriting Lines for Student Notes - CENTERED
     line_y_start = gap_y + 55
-    font_hint = get_font(20, bold=False)
-    draw.text((x0 + pad + 20, line_y_start), "Student Notes / Heading:", fill=COLOR_TEXT_MUTED, font=font_hint)
+    font_hint = get_font(22, bold=False)
+    draw.text((card_center_x, line_y_start), "Student Notes / Heading:", fill=COLOR_TEXT_MUTED, font=font_hint, anchor="mt")
 
     for i in range(2):
         ly = line_y_start + 45 + (i * 45)
-        draw.line([(x0 + pad + 20, ly), (x1 - pad - 20, ly)], fill=COLOR_RULED_LINE, width=2)
+        draw.line([(x0 + 100, ly), (x1 - 100, ly)], fill=COLOR_RULED_LINE, width=2)
 
 def main():
     print("[*] Generating 16:9 Uniform CBSE Sheets & Single PDF...")
