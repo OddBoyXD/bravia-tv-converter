@@ -216,43 +216,43 @@ def main():
         y = [r0_y, r1_y, r2_y][row]
         return (x, y, x + CARD_W, y + CARD_H)
 
-    # ==================== SHEET 1: BIHAR SECTION (Pages 4–7) ====================
+    # ==================== SHEET 1: BIHAR SECTION ====================
     print("[*] Rendering Sheet 1: Bihar Section...")
     sheet1 = create_blank_sheet()
-    render_uniform_card(sheet1, get_slot(0, 0), imgs["nalanda"], "Page 4: Nalanda Ancient University Ruins")
-    render_uniform_card(sheet1, get_slot(1, 0), imgs["mahabodhi"], "Page 4: Mahabodhi Temple, Bodh Gaya")
-    render_uniform_card(sheet1, get_slot(0, 1), imgs["chhath"], "Page 5: Chhath Puja Celebrations")
-    render_uniform_card(sheet1, get_slot(1, 1), imgs["madhubani"], "Page 6: Traditional Madhubani Folk Painting")
-    render_uniform_card(sheet1, get_slot(0, 2), imgs["thekua"], "Page 7: Traditional Bihari Thekua")
-    render_uniform_card(sheet1, get_slot(1, 2), imgs["litti"], "Page 7: Traditional Bihari Litti Chokha")
+    render_uniform_card(sheet1, get_slot(0, 0), imgs["nalanda"], "Nalanda Ancient University Ruins")
+    render_uniform_card(sheet1, get_slot(1, 0), imgs["mahabodhi"], "Mahabodhi Temple, Bodh Gaya")
+    render_uniform_card(sheet1, get_slot(0, 1), imgs["chhath"], "Chhath Puja Celebrations")
+    render_uniform_card(sheet1, get_slot(1, 1), imgs["madhubani"], "Traditional Madhubani Folk Painting")
+    render_uniform_card(sheet1, get_slot(0, 2), imgs["thekua"], "Traditional Bihari Thekua")
+    render_uniform_card(sheet1, get_slot(1, 2), imgs["litti"], "Traditional Bihari Litti Chokha")
     sheet1.save("output_cbse/Page_1_Bihar_Section.png", "PNG", dpi=(300, 300))
 
-    # ==================== SHEET 2: TRIPURA SECTION (Pages 8–12) ====================
+    # ==================== SHEET 2: TRIPURA SECTION ====================
     print("[*] Rendering Sheet 2: Tripura Section...")
     sheet2 = create_blank_sheet()
-    render_uniform_card(sheet2, get_slot(0, 0), imgs["tripura_dress"], "Page 8: Traditional Tribal Dress of Tripura")
-    render_uniform_card(sheet2, get_slot(1, 0), imgs["kharchi_celebration"], "Page 9: Kharchi Puja Celebrations")
-    render_uniform_card(sheet2, get_slot(0, 1), imgs["fourteen_deities"], "Page 9: The Fourteen Deities (Chaturdash Devta)")
-    render_uniform_card(sheet2, get_slot(1, 1), imgs["hojagiri"], "Page 10: Hojagiri Folk Dance")
-    render_uniform_card(sheet2, get_slot(0, 2), imgs["unakoti"], "Page 11: Unakoti Rock Reliefs (Shiva Carving)")
-    render_uniform_card(sheet2, get_slot(1, 2), imgs["mui_borok"], "Page 12: Traditional Tripuri Cuisine (Mui Borok)")
+    render_uniform_card(sheet2, get_slot(0, 0), imgs["tripura_dress"], "Traditional Tribal Dress of Tripura")
+    render_uniform_card(sheet2, get_slot(1, 0), imgs["kharchi_celebration"], "Kharchi Puja Celebrations")
+    render_uniform_card(sheet2, get_slot(0, 1), imgs["fourteen_deities"], "The Fourteen Deities (Chaturdash Devta)")
+    render_uniform_card(sheet2, get_slot(1, 1), imgs["hojagiri"], "Hojagiri Folk Dance")
+    render_uniform_card(sheet2, get_slot(0, 2), imgs["unakoti"], "Unakoti Rock Reliefs (Lord Shiva Carving)")
+    render_uniform_card(sheet2, get_slot(1, 2), imgs["mui_borok"], "Traditional Tripuri Cuisine (Mui Borok)")
     sheet2.save("output_cbse/Page_2_Tripura_Section.png", "PNG", dpi=(300, 300))
 
-    # ==================== SHEET 3: COMPARISON & CUISINE (Pages 12–16) ====================
+    # ==================== SHEET 3: COMPARISON & CUISINE ====================
     print("[*] Rendering Sheet 3: Comparison & Geography...")
     sheet3 = create_blank_sheet()
-    render_uniform_card(sheet3, get_slot(0, 0), imgs["mosdeng"], "Page 12: Traditional Fermented Food (Mosdeng / Berma)")
+    render_uniform_card(sheet3, get_slot(0, 0), imgs["mosdeng"], "Traditional Fermented Food (Mosdeng / Berma)")
     render_uniform_card(sheet3, get_slot(1, 0),
                         (imgs["chhath"], imgs["kharchi_celebration"], "Chhath Puja (Bihar)", "Kharchi Puja (Tripura)"),
-                        "Page 13: Comparison: Chhath Puja & Kharchi Puja", comparison_pair=True)
+                        "Comparison: Chhath Puja & Kharchi Puja", comparison_pair=True)
     render_uniform_card(sheet3, get_slot(0, 1),
                         (imgs["litti"], imgs["mosdeng"], "Litti Chokha (Bihar)", "Mui Borok (Tripura)"),
-                        "Page 14: Comparison: Bihari Cuisine & Tripuri Cuisine", comparison_pair=True)
+                        "Comparison: Bihari Cuisine & Tripuri Cuisine", comparison_pair=True)
     render_uniform_card(sheet3, get_slot(1, 1), imgs["map_india_combined"],
-                        "Page 15: Map of India: Bihar & Tripura")
+                        "Map of India: Bihar & Tripura")
     render_uniform_card(sheet3, get_slot(0, 2),
                         (imgs["ganga_plains"], imgs["jampui_hills"], "Ganga Plains (Bihar)", "Jampui Hills (Tripura)"),
-                        "Page 16: Landscapes: Bihar Plains & Tripura Hills", comparison_pair=True)
+                        "Landscapes: Bihar Plains & Tripura Hills", comparison_pair=True)
     sheet3.save("output_cbse/Page_3_Comparison_Section.png", "PNG", dpi=(300, 300))
 
     # ==================== SHEET 4: STATE DISTRICT MAPS ====================
