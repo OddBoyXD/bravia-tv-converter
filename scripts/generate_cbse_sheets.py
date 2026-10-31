@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """
-CBSE Class 10 English Project Sheet Generator (V3 - Perfect Middle Centering)
+CBSE Class 10 English Project Sheet Generator (V4 - Maximized 16:9, No Cut Lines/Notes)
 "Bihar and Tripura: A Comparison of Cultural Heritage, Festivals, and Food"
 
 Features:
-- Exact 16:9 ratio for all photos (1080x608 px inside cards)
-- 100% uniform card dimensions across all pages (1130x725 px)
-- All headlines and text mathematically centered in the middle of each photo card (anchor="mt" / anchor="mm")
-- No page numbers in headlines, no descriptions, no clutter
-- Authentic HD photography (real Wikimedia Commons assets, no AI)
-- Live Kharchi Puja celebration HD photo
-- Sheet 4: Dedicated State Maps of Bihar and Tripura with centered headlines & handwriting lines
+- Maximized 16:9 photos (1185x666 px) filling the A4 page width with minimal gaps
+- NO cut lines, NO dashed borders, NO scissor hints, NO student notes prompts
+- Smart 16:9 framing: faces, traditional dresses, and authentic dishes fully preserved
+- Authentic HD photography:
+  * Real Tripuri Girls in traditional Rignai & Risa
+  * Authentic Tripuri Mui Borok Thali
+  * Authentic Tripuri Fermented Food (Gudok / Gwdwk made with Berma)
+  * Live Kharchi Puja festival celebration
+- Sheet 4: Clean State Maps of Bihar and Tripura with centered titles and open writing space
 - Output: 4 print-ready A4 PNGs (300 DPI) and 1 compiled PDF
 """
 
@@ -21,24 +23,23 @@ from PIL import Image, ImageDraw, ImageFont
 
 PAGE_W = 2480
 PAGE_H = 3508
-MARGIN_X = 80
-MARGIN_Y = 100
+MARGIN_X = 40  # Tight margins to maximize photo dimensions
 
-# Color Palette
+# Colors
 COLOR_BG = (255, 255, 255)
-COLOR_BORDER = (148, 163, 184) # Dashed cutting line
-COLOR_PHOTO_BORDER = (226, 232, 240)
+COLOR_PHOTO_BORDER = (203, 213, 225)
 COLOR_TEXT = (15, 23, 42)
-COLOR_TEXT_MUTED = (100, 116, 139)
-COLOR_RULED_LINE = (203, 213, 225)
 
-# Uniform Card & Photo Dimensions (16:9)
-CARD_W = 1130
-IMG_W = 1080
-IMG_H = 608  # 1080 * 9 / 16 = 607.5 -> 608 px
-PAD_INNER = 25
-HEADLINE_H = 55
-CARD_H = PAD_INNER + IMG_H + 12 + HEADLINE_H + PAD_INNER  # 725 px
+# Maximized 16:9 Dimensions
+COL_GAP = 30
+IMG_W = (PAGE_W - (MARGIN_X * 2) - COL_GAP) // 2  # 1185 px
+IMG_H = int(IMG_W * 9 / 16)                        # 666 px (Exact 16:9)
+
+GAP_IMG_TEXT = 14
+TEXT_H = 46
+CARD_W = IMG_W
+CARD_H = IMG_H + GAP_IMG_TEXT + TEXT_H            # 726 px
+ROW_GAP = 40
 
 def get_font(size, bold=False):
     candidates = [
@@ -54,124 +55,90 @@ def get_font(size, bold=False):
                 pass
     return ImageFont.load_default()
 
-def draw_dashed_rect(draw, x0, y0, x1, y1, color, dash_len=20, space_len=14, width=3):
-    for x in range(int(x0), int(x1), dash_len + space_len):
-        draw.line([(x, y0), (min(x + dash_len, x1), y0)], fill=color, width=width)
-        draw.line([(x, y1), (min(x + dash_len, x1), y1)], fill=color, width=width)
-    for y in range(int(y0), int(y1), dash_len + space_len):
-        draw.line([(x0, y), (x0, min(y + dash_len, y1))], fill=color, width=width)
-        draw.line([(x1, y), (x1, min(y + dash_len, y1))], fill=color, width=width)
-
-def crop_to_16_9(img, target_w, target_h):
+def crop_to_16_9(img, target_w, target_h, focus="center"):
     iw, ih = img.size
     scale = max(target_w / iw, target_h / ih)
     nw = int(iw * scale)
     nh = int(ih * scale)
     resized = img.resize((nw, nh), Image.Resampling.LANCZOS)
+
     cx = (nw - target_w) // 2
-    cy = (nh - target_h) // 2
+    if focus == "top":
+        cy = max(0, int((nh - target_h) * 0.12))
+    elif focus == "bottom":
+        cy = max(0, int((nh - target_h) * 0.88))
+    else:
+        cy = max(0, (nh - target_h) // 2)
+
     return resized.crop((cx, cy, cx + target_w, cy + target_h))
 
-def render_uniform_card(canvas, box, img_obj, headline, comparison_pair=None):
+def render_maximized_card(canvas, x0, y0, img_obj, headline, focus="center", comparison_pair=None):
     draw = ImageDraw.Draw(canvas)
-    x0, y0, x1, y1 = box
-    card_center_x = (x0 + x1) // 2
+    center_x = x0 + IMG_W // 2
 
-    # 1. Dashed Scissor Cut Border
-    draw_dashed_rect(draw, x0, y0, x1, y1, COLOR_BORDER, dash_len=22, space_len=14, width=3)
-
-    # 2. Scissor Icon & Cut Hint
-    font_hint = get_font(18, bold=False)
-    draw.text((x1 - 105, y0 + 8), "✂ Cut line", fill=COLOR_TEXT_MUTED, font=font_hint)
-
-    # 3. Photo Box Area (Exact 16:9)
-    px = x0 + PAD_INNER
-    py = y0 + PAD_INNER
-
+    # 1. Photo Area (Exact 16:9, No Cut Lines, No Dashed Boxes)
     if comparison_pair is None:
-        # Single 16:9 Photo
-        cropped = crop_to_16_9(img_obj, IMG_W, IMG_H)
-        canvas.paste(cropped, (px, py))
-        draw.rectangle([(px, py), (px + IMG_W, py + IMG_H)], outline=COLOR_PHOTO_BORDER, width=2)
+        cropped = crop_to_16_9(img_obj, IMG_W, IMG_H, focus=focus)
+        canvas.paste(cropped, (x0, y0))
+        draw.rectangle([(x0, y0), (x0 + IMG_W, y0 + IMG_H)], outline=COLOR_PHOTO_BORDER, width=2)
     else:
-        # Split Side-by-Side Comparison inside 16:9 frame
+        # Split Side-by-Side Comparison inside the exact 16:9 box
         img1, img2, lbl1, lbl2 = img_obj
         half_w = (IMG_W - 8) // 2
-        c1 = crop_to_16_9(img1, half_w, IMG_H)
-        c2 = crop_to_16_9(img2, half_w, IMG_H)
-        canvas.paste(c1, (px, py))
-        canvas.paste(c2, (px + half_w + 8, py))
-        draw.rectangle([(px, py), (px + half_w, py + IMG_H)], outline=COLOR_PHOTO_BORDER, width=2)
-        draw.rectangle([(px + half_w + 8, py), (px + IMG_W, py + IMG_H)], outline=COLOR_PHOTO_BORDER, width=2)
+        c1 = crop_to_16_9(img1, half_w, IMG_H, focus=focus)
+        c2 = crop_to_16_9(img2, half_w, IMG_H, focus=focus)
+        canvas.paste(c1, (x0, y0))
+        canvas.paste(c2, (x0 + half_w + 8, y0))
+        draw.rectangle([(x0, y0), (x0 + half_w, y0 + IMG_H)], outline=COLOR_PHOTO_BORDER, width=2)
+        draw.rectangle([(x0 + half_w + 8, y0), (x0 + IMG_W, y0 + IMG_H)], outline=COLOR_PHOTO_BORDER, width=2)
 
-        # Centered bottom labels for each side
+        # Centered sub-labels
         font_sub = get_font(20, bold=True)
-        h1_cx = px + half_w // 2
+        h1_cx = x0 + half_w // 2
         lbl1_bbox = draw.textbbox((0, 0), lbl1, font=font_sub)
         lbl1_w = (lbl1_bbox[2] - lbl1_bbox[0]) + 24
-        draw.rounded_rectangle([(h1_cx - lbl1_w // 2, py + IMG_H - 40), (h1_cx + lbl1_w // 2, py + IMG_H - 10)], radius=4, fill=(0, 0, 0))
-        draw.text((h1_cx, py + IMG_H - 25), lbl1, fill=(255, 255, 255), font=font_sub, anchor="mm")
+        draw.rounded_rectangle([(h1_cx - lbl1_w // 2, y0 + IMG_H - 40), (h1_cx + lbl1_w // 2, y0 + IMG_H - 10)], radius=4, fill=(0, 0, 0))
+        draw.text((h1_cx, y0 + IMG_H - 25), lbl1, fill=(255, 255, 255), font=font_sub, anchor="mm")
 
-        h2_cx = px + half_w + 8 + half_w // 2
+        h2_cx = x0 + half_w + 8 + half_w // 2
         lbl2_bbox = draw.textbbox((0, 0), lbl2, font=font_sub)
         lbl2_w = (lbl2_bbox[2] - lbl2_bbox[0]) + 24
-        draw.rounded_rectangle([(h2_cx - lbl2_w // 2, py + IMG_H - 40), (h2_cx + lbl2_w // 2, py + IMG_H - 10)], radius=4, fill=(0, 0, 0))
-        draw.text((h2_cx, py + IMG_H - 25), lbl2, fill=(255, 255, 255), font=font_sub, anchor="mm")
+        draw.rounded_rectangle([(h2_cx - lbl2_w // 2, y0 + IMG_H - 40), (h2_cx + lbl2_w // 2, y0 + IMG_H - 10)], radius=4, fill=(0, 0, 0))
+        draw.text((h2_cx, y0 + IMG_H - 25), lbl2, fill=(255, 255, 255), font=font_sub, anchor="mm")
 
-    # 4. Simple Text Headline - EXACT HORIZONTAL MIDDLE CENTERING
-    text_y = py + IMG_H + 20
+    # 2. Simple Headline - Centered in Middle under the Photo (No descriptions)
+    text_y = y0 + IMG_H + GAP_IMG_TEXT
     font_head = get_font(30, bold=True)
-    draw.text((card_center_x, text_y), headline, fill=COLOR_TEXT, font=font_head, anchor="mt")
+    draw.text((center_x, text_y), headline, fill=COLOR_TEXT, font=font_head, anchor="mt")
 
-def create_blank_sheet():
-    img = Image.new("RGB", (PAGE_W, PAGE_H), COLOR_BG)
-    return img
-
-def render_state_map_card(canvas, box, map_img, headline):
+def render_clean_state_map(canvas, x0, y0, box_w, box_h, map_img, headline):
     draw = ImageDraw.Draw(canvas)
-    x0, y0, x1, y1 = box
-    card_w = x1 - x0
-    card_h = y1 - y0
-    card_center_x = (x0 + x1) // 2
+    center_x = x0 + box_w // 2
 
-    # Dashed Scissor Cut Border
-    draw_dashed_rect(draw, x0, y0, x1, y1, COLOR_BORDER, dash_len=24, space_len=16, width=3)
-    draw.text((x1 - 110, y0 + 12), "✂ Cut line", fill=COLOR_TEXT_MUTED, font=get_font(20))
-
-    # Map Box
-    pad = 30
-    box_w = card_w - (pad * 2)
-    box_h = int(card_h * 0.72)
-
+    # Map Box (75% height)
+    map_area_h = int(box_h * 0.78)
     mw, mh = map_img.size
-    scale = min(box_w / mw, box_h / mh)
+    scale = min(box_w / mw, map_area_h / mh)
     rmw = int(mw * scale)
     rmh = int(mh * scale)
     resized_map = map_img.resize((rmw, rmh), Image.Resampling.LANCZOS)
 
-    mx = x0 + pad + (box_w - rmw) // 2
-    my = y0 + pad + (box_h - rmh) // 2
+    mx = x0 + (box_w - rmw) // 2
+    my = y0 + (map_area_h - rmh) // 2
     canvas.paste(resized_map, (mx, my))
 
-    # Simple Headline - EXACT MIDDLE CENTERED
-    gap_y = y0 + pad + box_h + 16
-    font_head = get_font(38, bold=True)
-    draw.text((card_center_x, gap_y), headline, fill=COLOR_TEXT, font=font_head, anchor="mt")
+    # Centered Title (No descriptions, no cut lines, no student notes text)
+    title_y = y0 + map_area_h + 20
+    font_head = get_font(42, bold=True)
+    draw.text((center_x, title_y), headline, fill=COLOR_TEXT, font=font_head, anchor="mt")
 
-    # Ruled Handwriting Lines for Student Notes - CENTERED
-    line_y_start = gap_y + 55
-    font_hint = get_font(22, bold=False)
-    draw.text((card_center_x, line_y_start), "Student Notes / Heading:", fill=COLOR_TEXT_MUTED, font=font_hint, anchor="mt")
-
-    for i in range(2):
-        ly = line_y_start + 45 + (i * 45)
-        draw.line([(x0 + 100, ly), (x1 - 100, ly)], fill=COLOR_RULED_LINE, width=2)
+def create_blank_sheet():
+    return Image.new("RGB", (PAGE_W, PAGE_H), COLOR_BG)
 
 def main():
-    print("[*] Generating 16:9 Uniform CBSE Sheets & Single PDF...")
+    print("[*] Generating Maximized 16:9 CBSE Sheets & Single PDF...")
     os.makedirs("output_cbse", exist_ok=True)
 
-    # Image Assets Mapping
     assets = {
         "nalanda": "cbse_project_assets/01_Nalanda_University_Ruins_Bihar.jpg",
         "mahabodhi": "cbse_project_assets/02_Mahabodhi_Temple_Bodh_Gaya_Bihar.jpg",
@@ -193,7 +160,6 @@ def main():
         "map_tripura": "cbse_project_assets/19_State_Map_Tripura_Districts.png"
     }
 
-    # Load all images
     imgs = {}
     for key, path in assets.items():
         if os.path.exists(path):
@@ -201,80 +167,77 @@ def main():
         else:
             print(f"[!] Warning: Missing {path}")
 
-    # Fallback for India combined map if SVG hasn't been rasterized
+    # Fallback for India map
     if "map_india_combined" not in imgs:
         if os.path.exists("cbse_project_assets/16_Map_Bihar_in_India.png"):
             imgs["map_india_combined"] = Image.open("cbse_project_assets/16_Map_Bihar_in_India.png").convert("RGB")
 
-    # Grid calculation for 2 columns x 3 rows
-    col_gap = 60
+    # Grid calculation (2 columns x 3 rows)
     c0_x = MARGIN_X
-    c1_x = c0_x + CARD_W + col_gap
+    c1_x = c0_x + IMG_W + COL_GAP
 
-    row_gap = 70
-    start_y = (PAGE_H - (3 * CARD_H + 2 * row_gap)) // 2
+    grid_total_h = (3 * CARD_H) + (2 * ROW_GAP)
+    start_y = (PAGE_H - grid_total_h) // 2
     r0_y = start_y
-    r1_y = r0_y + CARD_H + row_gap
-    r2_y = r1_y + CARD_H + row_gap
+    r1_y = r0_y + CARD_H + ROW_GAP
+    r2_y = r1_y + CARD_H + ROW_GAP
 
-    def get_slot(col, row):
+    def get_pos(col, row):
         x = c0_x if col == 0 else c1_x
         y = [r0_y, r1_y, r2_y][row]
-        return (x, y, x + CARD_W, y + CARD_H)
+        return x, y
 
     # ==================== SHEET 1: BIHAR SECTION ====================
     print("[*] Rendering Sheet 1: Bihar Section...")
     sheet1 = create_blank_sheet()
-    render_uniform_card(sheet1, get_slot(0, 0), imgs["nalanda"], "Nalanda Ancient University Ruins")
-    render_uniform_card(sheet1, get_slot(1, 0), imgs["mahabodhi"], "Mahabodhi Temple, Bodh Gaya")
-    render_uniform_card(sheet1, get_slot(0, 1), imgs["chhath"], "Chhath Puja Celebrations")
-    render_uniform_card(sheet1, get_slot(1, 1), imgs["madhubani"], "Traditional Madhubani Folk Painting")
-    render_uniform_card(sheet1, get_slot(0, 2), imgs["thekua"], "Traditional Bihari Thekua")
-    render_uniform_card(sheet1, get_slot(1, 2), imgs["litti"], "Traditional Bihari Litti Chokha")
+    x, y = get_pos(0, 0); render_maximized_card(sheet1, x, y, imgs["nalanda"], "Nalanda Ancient University Ruins")
+    x, y = get_pos(1, 0); render_maximized_card(sheet1, x, y, imgs["mahabodhi"], "Mahabodhi Temple, Bodh Gaya")
+    x, y = get_pos(0, 1); render_maximized_card(sheet1, x, y, imgs["chhath"], "Chhath Puja Celebrations")
+    x, y = get_pos(1, 1); render_maximized_card(sheet1, x, y, imgs["madhubani"], "Traditional Madhubani Folk Painting")
+    x, y = get_pos(0, 2); render_maximized_card(sheet1, x, y, imgs["thekua"], "Traditional Bihari Thekua")
+    x, y = get_pos(1, 2); render_maximized_card(sheet1, x, y, imgs["litti"], "Traditional Bihari Litti Chokha")
     sheet1.save("output_cbse/Page_1_Bihar_Section.png", "PNG", dpi=(300, 300))
 
     # ==================== SHEET 2: TRIPURA SECTION ====================
     print("[*] Rendering Sheet 2: Tripura Section...")
     sheet2 = create_blank_sheet()
-    render_uniform_card(sheet2, get_slot(0, 0), imgs["tripura_dress"], "Traditional Tribal Dress of Tripura")
-    render_uniform_card(sheet2, get_slot(1, 0), imgs["kharchi_celebration"], "Kharchi Puja Celebrations")
-    render_uniform_card(sheet2, get_slot(0, 1), imgs["fourteen_deities"], "The Fourteen Deities (Chaturdash Devta)")
-    render_uniform_card(sheet2, get_slot(1, 1), imgs["hojagiri"], "Hojagiri Folk Dance")
-    render_uniform_card(sheet2, get_slot(0, 2), imgs["unakoti"], "Unakoti Rock Reliefs (Lord Shiva Carving)")
-    render_uniform_card(sheet2, get_slot(1, 2), imgs["mui_borok"], "Traditional Tripuri Cuisine (Mui Borok)")
+    # Traditional dress with focus="top" so faces and outfits are perfectly visible
+    x, y = get_pos(0, 0); render_maximized_card(sheet2, x, y, imgs["tripura_dress"], "Traditional Tribal Dress of Tripura", focus="top")
+    x, y = get_pos(1, 0); render_maximized_card(sheet2, x, y, imgs["kharchi_celebration"], "Kharchi Puja Celebrations")
+    x, y = get_pos(0, 1); render_maximized_card(sheet2, x, y, imgs["fourteen_deities"], "The Fourteen Deities (Chaturdash Devta)")
+    x, y = get_pos(1, 1); render_maximized_card(sheet2, x, y, imgs["hojagiri"], "Hojagiri Folk Dance")
+    x, y = get_pos(0, 2); render_maximized_card(sheet2, x, y, imgs["unakoti"], "Unakoti Rock Reliefs (Lord Shiva Carving)")
+    x, y = get_pos(1, 2); render_maximized_card(sheet2, x, y, imgs["mui_borok"], "Traditional Tripuri Cuisine (Mui Borok)")
     sheet2.save("output_cbse/Page_2_Tripura_Section.png", "PNG", dpi=(300, 300))
 
     # ==================== SHEET 3: COMPARISON & CUISINE ====================
     print("[*] Rendering Sheet 3: Comparison & Geography...")
     sheet3 = create_blank_sheet()
-    render_uniform_card(sheet3, get_slot(0, 0), imgs["mosdeng"], "Traditional Fermented Food (Mosdeng / Berma)")
-    render_uniform_card(sheet3, get_slot(1, 0),
-                        (imgs["chhath"], imgs["kharchi_celebration"], "Chhath Puja (Bihar)", "Kharchi Puja (Tripura)"),
-                        "Comparison: Chhath Puja & Kharchi Puja", comparison_pair=True)
-    render_uniform_card(sheet3, get_slot(0, 1),
-                        (imgs["litti"], imgs["mosdeng"], "Litti Chokha (Bihar)", "Mui Borok (Tripura)"),
-                        "Comparison: Bihari Cuisine & Tripuri Cuisine", comparison_pair=True)
-    render_uniform_card(sheet3, get_slot(1, 1), imgs["map_india_combined"],
-                        "Map of India: Bihar & Tripura")
-    render_uniform_card(sheet3, get_slot(0, 2),
-                        (imgs["ganga_plains"], imgs["jampui_hills"], "Ganga Plains (Bihar)", "Jampui Hills (Tripura)"),
-                        "Landscapes: Bihar Plains & Tripura Hills", comparison_pair=True)
+    x, y = get_pos(0, 0); render_maximized_card(sheet3, x, y, imgs["mosdeng"], "Traditional Fermented Food (Gudok / Berma)")
+    x, y = get_pos(1, 0); render_maximized_card(sheet3, x, y,
+                                               (imgs["chhath"], imgs["kharchi_celebration"], "Chhath Puja (Bihar)", "Kharchi Puja (Tripura)"),
+                                               "Comparison: Chhath Puja & Kharchi Puja", comparison_pair=True)
+    x, y = get_pos(0, 1); render_maximized_card(sheet3, x, y,
+                                               (imgs["litti"], imgs["mui_borok"], "Litti Chokha (Bihar)", "Mui Borok (Tripura)"),
+                                               "Comparison: Bihari Cuisine & Tripuri Cuisine", comparison_pair=True)
+    x, y = get_pos(1, 1); render_maximized_card(sheet3, x, y, imgs["map_india_combined"],
+                                               "Map of India: Bihar & Tripura")
+    x, y = get_pos(0, 2); render_maximized_card(sheet3, x, y,
+                                               (imgs["ganga_plains"], imgs["jampui_hills"], "Ganga Plains (Bihar)", "Jampui Hills (Tripura)"),
+                                               "Landscapes: Bihar Plains & Tripura Hills", comparison_pair=True)
     sheet3.save("output_cbse/Page_3_Comparison_Section.png", "PNG", dpi=(300, 300))
 
     # ==================== SHEET 4: STATE DISTRICT MAPS ====================
     print("[*] Rendering Sheet 4: State District Maps...")
     sheet4 = create_blank_sheet()
-    map_h = 1520
-    map_w = PAGE_W - (MARGIN_X * 2)
+    map_box_w = PAGE_W - (MARGIN_X * 2)
+    map_box_h = (PAGE_H - 160) // 2
 
-    top_box = (MARGIN_X, 140, MARGIN_X + map_w, 140 + map_h)
-    bot_box = (MARGIN_X, 140 + map_h + 80, MARGIN_X + map_w, 140 + (map_h * 2) + 80)
-
-    render_state_map_card(sheet4, top_box, imgs["map_bihar"], "State Map of Bihar")
-    render_state_map_card(sheet4, bot_box, imgs["map_tripura"], "State Map of Tripura")
+    render_clean_state_map(sheet4, MARGIN_X, 60, map_box_w, map_box_h, imgs["map_bihar"], "State Map of Bihar")
+    render_clean_state_map(sheet4, MARGIN_X, 60 + map_box_h + 40, map_box_w, map_box_h, imgs["map_tripura"], "State Map of Tripura")
     sheet4.save("output_cbse/Page_4_State_Maps.png", "PNG", dpi=(300, 300))
 
-    # ==================== COMPILE ALL 4 SHEETS INTO SINGLE PDF ====================
+    # ==================== MASTER PDF COMPILATION ====================
     print("[*] Compiling all 4 sheets into high-resolution PDF...")
     pdf_path = "output_cbse/CBSE_Class10_Bihar_Tripura_Project.pdf"
     sheet1.save(pdf_path, "PDF", resolution=300.0, save_all=True, append_images=[sheet2, sheet3, sheet4])
