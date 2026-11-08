@@ -1,0 +1,33 @@
+# Large Media Files (Never commit video/audio/raw media to git)
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.ts
+*.raw
+*.part
+*.y4m
+*.webm
+*.iso
+
+# Audio Files (Stored in Releases)
+*.mp3
+*.aac
+*.wav
+*.flac
+*.m4a
+
+# Chunks and Temporary Encode Files
+chunk*.ts
+log_chunk*.log
+*.log
+
+# CBSE School Project Assets (Per Master Rule: NEVER upload school projects)
+cbse_project_assets/
+*.pdf
+
+# Temporary and Cache Directories
+node_modules/
+.DS_Store
+Thumbs.db
+*.tmp
