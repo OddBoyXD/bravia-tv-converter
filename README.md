@@ -1,5 +1,7 @@
 # 📺 Sony Bravia 720p & MP3 Converter
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/OddBoyXD/bravia-tv-converter/blob/main/Sony_Bravia_TV_Converter_Colab.ipynb)
+
 A 100% free, 24/7 web application designed to convert, downscale, and download any direct video URL, audio stream, local phone storage file, YouTube link, or playlist specifically formatted for the **Sony Bravia KLV-24P413D** (Non-Smart LED TV) and older USB media players.
 
 ---
